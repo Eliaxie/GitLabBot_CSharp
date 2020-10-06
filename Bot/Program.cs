@@ -12,6 +12,7 @@ namespace Bot
     {
         static TelegramBotClient botClient = null;
         
+
         static Dictionary<long, Conversation> dict = new Dictionary<long, Conversation>();
 
         static void Main(string[] args)

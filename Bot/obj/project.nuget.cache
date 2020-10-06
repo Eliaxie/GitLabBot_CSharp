@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "X0nMFps18PZ/2Rf1dhunqhsfXYKgN2BTAn9CKCT3nzY9VWB8T3JiEw0yJ/klzSvj1eFK8RlGNTb+HPtRJX69gg==",
+  "dgSpecHash": "l7G/8U7aLqVPGWxkh6N9stj/i5EGbfm6oXfTs+2UkuRmmjz20RTheAGdawr9XXJJbwjx20we0Ktzr1C8VZi+zA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\elia_\\source\\repos\\Bot\\Bot\\Bot.csproj",
+  "projectFilePath": "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\elia_\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\elia_\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",

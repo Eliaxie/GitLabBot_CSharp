@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\elia_\\source\\repos\\Bot\\Bot\\Bot.csproj": {}
+    "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj": {}
   },
   "projects": {
-    "C:\\Users\\elia_\\source\\repos\\Bot\\Bot\\Bot.csproj": {
+    "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\elia_\\source\\repos\\Bot\\Bot\\Bot.csproj",
+        "projectUniqueName": "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj",
         "projectName": "Bot",
-        "projectPath": "C:\\Users\\elia_\\source\\repos\\Bot\\Bot\\Bot.csproj",
+        "projectPath": "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj",
         "packagesPath": "C:\\Users\\elia_\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\elia_\\source\\repos\\Bot\\Bot\\obj\\",
+        "outputPath": "C:\\Repos\\GitLabBot_CSharp\\Bot\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\elia_\\AppData\\Roaming\\NuGet\\NuGet.Config",
