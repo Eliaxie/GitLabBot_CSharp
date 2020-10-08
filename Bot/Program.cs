@@ -19,20 +19,20 @@ namespace Bot
     {
         static TelegramBotClient botClient = null;
 
-        static Dictionary<long, Conversation> dict = new Dictionary<long, Conversation>();
+        static Dictionary<long, Conversation> dict = new Dictionary<long, Conversation>(); //inizializzazione del dizionario <utente, Conversation>
 
         static void Main(string[] args)
         {
             botClient = new TelegramBotClient("1307723925:AAGoudgP99mVb0BWFlggHojxyJWi5psbfbU");
-            botClient.OnMessage += BotClient_OnMessageAsync;
-            botClient.OnCallbackQuery += BotOnCallbackQueryReceived;
+            botClient.OnMessage += BotClient_OnMessageAsync; //gestisce i messaggi in entrata
+            botClient.OnCallbackQuery += BotOnCallbackQueryReceived; //gestisce le CallbackQuery delle InlineKeyboard
             botClient.StartReceiving();
             Thread t = new Thread(Checkmessage);
             t.Start();
             Console.ReadLine();
         }
 
-        private async static void Checkmessage()
+        private async static void Checkmessage() //funzione di gestione del database 
         {
             while (true)
             {
@@ -53,18 +53,18 @@ namespace Bot
             }
         }
 
-        private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
+        private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs callbackQueryEventArgs) 
         {
             var callbackQuery = callbackQueryEventArgs.CallbackQuery;
             switch (callbackQuery.Data)
             {
                 case "y":
                     {
-                        await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted");
-                        botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b>", ParseMode.Html);
-                        var fileName = @"C:\Repos\doc\" + callbackQuery.Message.ReplyToMessage.Document.FileName;
+                        await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
+                        botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
+                        var fileName = @"C:\Repos\doc\" + callbackQuery.Message.ReplyToMessage.Document.FileName; 
                         using FileStream fileStream = System.IO.File.OpenWrite(fileName);
-                        await botClient.GetInfoAndDownloadFileAsync(callbackQuery.Message.ReplyToMessage.Document.FileId, destination: fileStream);
+                        await botClient.GetInfoAndDownloadFileAsync(callbackQuery.Message.ReplyToMessage.Document.FileId, destination: fileStream); //salva il file 
                         //  await botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "File Saved in " + fileName);
                         //  InputOnlineFile inputOnlineFile = new InputOnlineFile(fileStream, e.Message.Document.FileName);
                         //  await botClient.SendDocumentAsync(-1001403617749, inputOnlineFile);
@@ -72,12 +72,12 @@ namespace Bot
                         string q = "SELECT * FROM main.FILE WHERE Id_message = " + callbackQuery.Message.ReplyToMessage.Document.FileId.ToString();
                         System.Data.DataTable r = SqLite.ExecuteSelect(q);
                         string q2 = "UPDATE main.FILE SET Approved = 'Y' WHERE Id_message = " + callbackQuery.Message.ReplyToMessage.Document.FileId.ToString();
-                        SqLite.ExecuteSelect(q2);
+                        SqLite.ExecuteSelect(q2); //aggiorna il database con il file
                     }
                     break;
                 case "n":
-                    await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied");
-                    botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id ,callbackQuery.Message.MessageId, "<b>DENIED</b>", ParseMode.Html);
+                    await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied"); //Mostra un messaggio all'utente
+                    botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id ,callbackQuery.Message.MessageId, "<b>DENIED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
                     break;
             }
         }
@@ -85,7 +85,7 @@ namespace Bot
         {
             Console.WriteLine(e.Message.Text);
             Conversation conv = new Conversation();
-            dict.TryAdd(e.Message.From.Id, conv);
+            dict.TryAdd(e.Message.From.Id, conv); //aggiunge una conversazione al dizionario, questa parte è WIP
             switch (dict[e.Message.From.Id].getStato())
             {
                 case 1:
@@ -114,24 +114,23 @@ namespace Bot
                     botClient.SendTextMessageAsync(e.Message.Chat.Id, "Rinserisci");
                     break;
             }
-            try {
-                Message messageFW = await botClient.ForwardMessageAsync(-1001403617749, e.Message.Chat.Id, e.Message.MessageId);
+            try {  //gestisce l'arrivo del messaggio dall'utente
+                Message messageFW = await botClient.ForwardMessageAsync(-1001403617749, e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
                     new InlineKeyboardButton() {Text = "Yes", CallbackData = "y" },
                     new InlineKeyboardButton() {Text = "No", CallbackData = "n" },
                 };        
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
-                Message queryAW = await botClient.SendTextMessageAsync(-1001403617749, "Approvi l'inserimento del documento in %PATH%?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken));
-                CallbackQuery query = new CallbackQuery();
-                await botClient.AnswerCallbackQueryAsync(query.Id, "File Inserito");
+                Message queryAW = await botClient.SendTextMessageAsync(-1001403617749, "Approvi l'inserimento del documento in %PATH%?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
                 var fileName = @"C:\Repos\doc\" + e.Message.Document.FileName;
                 using FileStream fileStream = System.IO.File.OpenWrite(fileName);
+                //questa roba è stata spostata nello switch della query in entrata
                 //   await botClient.SendTextMessageAsync(e.Message.Chat.Id, e.Message.Document.FileId);
-                await botClient.GetInfoAndDownloadFileAsync(e.Message.Document.FileId, destination: fileStream);
-                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File Saved in " + fileName);
+                // await botClient.GetInfoAndDownloadFileAsync(e.Message.Document.FileId, destination: fileStream);
+                // await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File Saved in " + fileName);
                 //  InputOnlineFile inputOnlineFile = new InputOnlineFile(fileStream, e.Message.Document.FileName);
                 //  await botClient.SendDocumentAsync(-1001403617749, inputOnlineFile);
-                //  using (var sendFileStream = File.Open(fileName, FileMode.Open))
+                //  using (var sendFileStream = File.Open(fileName, FileMode.Open)) 
                 string q = "INSERT INTO Main.FILE (Path, Id_owner, Data, Approved, Id_cs, Desc, Id_message) VALUES (@p, @io, @d, @a, @ic, @d, @im)";
                 Dictionary<string, object> keyValuePairs = new Dictionary<string, object>() {
                     {"@p", fileName },
@@ -142,7 +141,7 @@ namespace Bot
                     {"@d", "Default Desc"},
                     {"@im", e.Message.Document.FileId}
                 };
-                SqLite.Execute(q, keyValuePairs);
+                SqLite.Execute(q, keyValuePairs); //aggiorna il database con il nuovo documento
                 fileStream.Close();
                 //using FileStream fileStream1 = System.IO.File.OpenRead(fileName);
             }
