@@ -1,0 +1,113 @@
+﻿/*
+                    break;
+                case ASF_Const.TREI: //Selezione corso interno scuola 3I
+                    if (e.Message.Text?.ToUpper() == "MATNANO")
+                    {
+                        dict[e.Message.From.Id].setStato(ASF_Const.MatNano);
+                        Keyboards.getKeyboard(ASF_Const.MatNano);
+                        await botClient.SendTextMessageAsync(e.Message.From.Id, "Selezionato MatNano", ParseMode.Default, false, false, 0, Keyboards.replyKeyboard);
+                    }
+                    else if (e.Message.Text?.ToUpper() == "GO BACK")
+                    {
+                        dict[e.Message.From.Id].setStato(ASF_Const.Scuola);
+                        Keyboards.getKeyboard(ASF_Const.Scuola);
+                        await botClient.SendTextMessageAsync(e.Message.From.Id, "Back to Scuola", ParseMode.Default, false, false, 0, Keyboards.replyKeyboard);
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(e.Message.From.Id, "Selezione Corso di 3I", ParseMode.Default, false, false, 0, Keyboards.replyKeyboard);
+                    }
+                    break;
+                case ASF_Const.AUIC: //Selezione corso interno AUIC
+                    await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Selezione corso interno AUIC");
+                    if (e.Message.Text?.ToUpper() == "Selezione corso interno AUIC")
+                    {
+                        await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Selezione corso interno AUIC");
+                        dict[e.Message.From.Id].setStato(3);
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Rinserisci1");
+                    }
+                    break;
+                case ASF_Const.Design: //Selezione corso interno Design
+                    await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Selezione corso interno Design");
+                    if (e.Message.Text?.ToUpper() == "DESIGN")
+                    {
+                        await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Selezione corso interno Design");
+                        dict[e.Message.From.Id].setStato(3);
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Rinserisci2");
+                    }
+                    break;
+                case ASF_Const.CAT: //Selezione corso interno CAT
+                    if (e.Message.Text?.ToUpper() == "Selezione corso interno CAT")
+                    {
+                        await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Selezione corso interno CAT");
+                        dict[e.Message.From.Id].setStato(3);
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Err3");
+                    }
+                    break;
+                case ASF_Const.MatNano: //Selezione cartella 
+                    string rootMatNano = @"C:\Repos\matnanorepo";
+                    string[] subdirectoryEntries = Directory.GetDirectories(rootMatNano);
+                    var x1 = Keyboards.setKeyboard(subdirectoryEntries);
+                    if (e.Message.Text?.ToUpper() == "MATNANO")
+                    {
+                        dict[e.Message.From.Id].setStato(ASF_Const.MatNano);
+                        Keyboards.setKeyboard(ASF_Const.MatNano);
+                        await botClient.SendTextMessageAsync(e.Message.From.Id, "Selezionato MatNano", ParseMode.Default, false, false, 0, Keyboards.replyKeyboard);
+                    }
+                    else if (e.Message.Text?.ToUpper() == "GO BACK")
+                    {
+                        dict[e.Message.From.Id].setStato(ASF_Const.Scuola);
+                        Keyboards.setKeyboard(ASF_Const.Scuola);
+                        await botClient.SendTextMessageAsync(e.Message.From.Id, "Back to Scuola", ParseMode.Default, false, false, 0, Keyboards.replyKeyboard);
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(e.Message.From.Id, "Selezione Corso di 3I", ParseMode.Default, false, false, 0, Keyboards.replyKeyboard);
+                    }
+                    break;
+                case 32: //Selezione cartella 
+                    break;
+                case 33: //Selezione cartella 
+                    break;
+                default:
+                    await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Err4");
+                    break;
+
+            }*/
+            try
+            {  //gestisce l'arrivo del messaggio dall'utente
+                /*
+                Message messageFW = await botClient.ForwardMessageAsync(-1001403617749, e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
+                List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
+                    new InlineKeyboardButton() {Text = "Yes", CallbackData = "y" },
+                    new InlineKeyboardButton() {Text = "No", CallbackData = "n" },
+                };
+                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
+                Message queryAW = await botClient.SendTextMessageAsync(-1001403617749, "Approvi l'inserimento del documento in %PATH%?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
+                var fileName = @"C:\Repos\doc\" + e.Message.Document.FileName;
+                using FileStream fileStream = System.IO.File.OpenWrite(fileName);              
+                string q = "INSERT INTO Main.FILE (Path, Id_owner, Data, Approved, Id_cs, Desc, Id_message) VALUES (@p, @io, @d, @a, @ic, @d, @im)";
+                Dictionary<string, object> keyValuePairs = new Dictionary<string, object>() {
+                    {"@p", fileName },
+                    {"@io", e.Message.From.Id },
+                    {"@a", "Q" },
+                    {"@d", DateTime.Now},
+                    {"@ic", 1},
+                    {"@d", "Default Desc"},
+                    {"@im", e.Message.Document.FileId}
+                };
+                SqLite.Execute(q, keyValuePairs); //aggiorna il database con il nuovo documento
+                fileStream.Close();
+                //using FileStream fileStream1 = System.IO.File.OpenRead(fileName);
+                */
+            }
+            catch { }

@@ -1,26 +1,61 @@
-﻿using System;
+﻿using Bot.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Bot
 {
+    [System.Serializable]
     public class Conversation
     {
 
-        int stato;
+        stati? stato;
+        CorsiEnum? corsienum;
+        ScuoleEnums? scuolaenum;
+        string percorso;
 
         public Conversation()
         {
-            stato = 1;
+            stato = stati.start;
         }
-        public int setStato(int newStato)
+        public void setStato(stati? var)
         {
-            stato = newStato;
-            return newStato;
+            stato = var;
         }
-        public int getStato()
+        public stati? getStato()
         {
             return stato;
+        }
+
+        internal void setCorso(CorsiEnum? corsienum)
+        {
+            this.corsienum = corsienum;
+        }
+
+        internal void setScuola(ScuoleEnums? scuolaenum)
+        {
+            this.scuolaenum = scuolaenum;
+        }
+
+        internal string getcorso()
+        {
+            return this.corsienum?.ToString();
+        }
+
+        internal void scesoDiUnLivello(string text)
+        {
+            if (string.IsNullOrEmpty(percorso))
+            {
+                percorso = text;
+                return;
+            }
+
+            percorso += "/" + text;
+        }
+
+        internal string getPercorso()
+        {
+            return this.percorso;
         }
     }
 }
