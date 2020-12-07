@@ -22,6 +22,7 @@ namespace Bot
 
         public static Dictionary<long, Conversation> dict = new Dictionary<long, Conversation>(); //inizializzazione del dizionario <utente, Conversation>
 
+        public static object lock1;
         static void Main(string[] args)
         {
             botClient = new TelegramBotClient("1307723925:AAGoudgP99mVb0BWFlggHojxyJWi5psbfbU");
@@ -32,7 +33,13 @@ namespace Bot
             t.Start();
             Console.ReadLine();
         }
+        private void GitHandler()
+        {
+            lock (lock1)
+            {
 
+            }
+        }
         private async static void Checkmessage() //funzione di gestione del database 
         {
             while (true)
