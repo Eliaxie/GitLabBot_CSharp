@@ -132,7 +132,7 @@ namespace Bot
             if (string.IsNullOrEmpty(corso))
                 return null;
             corso = corso.ToLower();
-            string rootMatNano = @"C:\Repos\"+corso+"repo";
+            string rootMatNano = @"C:\Repos\"+corso;
             string percorso = Program.dict[id].getPercorso();
             if (!string.IsNullOrEmpty(percorso))
             {
@@ -140,9 +140,7 @@ namespace Bot
             }
             string[] subdirectoryEntries = Directory.GetDirectories(rootMatNano);
             var k  =  Keyboards.getKeyboard(subdirectoryEntries);
-            if (k == null)
-                return null;
-
+            if (k == null) { } //do nothing
             k.Insert(0, new List<KeyboardButton>() { 
                 new KeyboardButton(){  Text = "🔙 back"},
                 new KeyboardButton(){  Text = "🆗 Cartella Corrente"}

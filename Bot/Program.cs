@@ -13,6 +13,8 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
+using System.Diagnostics;
+using System.ComponentModel;
 
 namespace Bot
 {
@@ -22,7 +24,7 @@ namespace Bot
 
         public static Dictionary<long, Conversation> dict = new Dictionary<long, Conversation>(); //inizializzazione del dizionario <utente, Conversation>
 
-        public static object lock1;
+        private static object lock1 = new object();
         static void Main(string[] args)
         {
             botClient = new TelegramBotClient("1307723925:AAGoudgP99mVb0BWFlggHojxyJWi5psbfbU");
@@ -33,11 +35,39 @@ namespace Bot
             t.Start();
             Console.ReadLine();
         }
-        private void GitHandler()
+        private static void GitHandler(CallbackQueryEventArgs e)
         {
             lock (lock1)
             {
+                try
+                {
+                    /*
+                     * Process exec = new Process();
+                    exec.
+                    exec.Start(cdCommand, cdArgument);
+                    exec.Start(gitCommand, gitPullArgument);
+                    exec.Start(gitCommand, gitAddArgument);
+                    exec.Start(gitCommand, gitCommitArgument);
+                    exec.Start(gitCommand, gitPushArgument); */
+                    string cdCommand = "cd";
+                    string cdArgument = @"C:\Repos" + dict[e.CallbackQuery.From.Id].getcorso() + "/" + dict[e.CallbackQuery.From.Id].getPercorso();
+                    string gitCommand = @"C:\Program Files\Git\git-cmd.exe";
+                    string gitPullArgument = "pull";
+                    string gitAddArgument = @"add -A";
+                    string gitCommitArgument = @"commit -m ""Added file by Bot""";
+                    string gitPushArgument = @"push";
 
+                    Process.Start(cdCommand, cdArgument);
+                    Process.Start(gitCommand, gitPullArgument);
+                    Process.Start(gitCommand, gitAddArgument);
+                    Process.Start(gitCommand, gitCommitArgument);
+                    Process.Start(gitCommand, gitPushArgument);
+                   
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
         private async static void Checkmessage() //funzione di gestione del database 
@@ -70,17 +100,19 @@ namespace Bot
                     {
                         await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
                         botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
-                        var fileName = @"C:\Repos\" + dict[callbackQuery.From.Id].getcorso() + "repo" + "/" + dict[callbackQuery.From.Id].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName; 
+                        var fileName = @"C:\Repos\" + dict[callbackQuery.From.Id].getcorso() + "/" + dict[callbackQuery.From.Id].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
                         using FileStream fileStream = System.IO.File.OpenWrite(fileName);
-                        await botClient.GetInfoAndDownloadFileAsync(callbackQuery.Message.ReplyToMessage.Document.FileId, destination: fileStream); //salva il file 
-                        //  await botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "File Saved in " + fileName);
+                        await botClient.GetInfoAndDownloadFileAsync(callbackQuery.Message.ReplyToMessage.Document.FileId, destination: fileStream);
+                        //salva il file 
+                        await botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "File Saved in " + fileName + System.Environment.NewLine + "Send other files to upload them in the same folder or write anything to go back to the main menu");
                         //  InputOnlineFile inputOnlineFile = new InputOnlineFile(fileStream, e.Message.Document.FileName);
                         //  await botClient.SendDocumentAsync(-1001403617749, inputOnlineFile);
                         //  using (var sendFileStream = File.Open(fileName, FileMode.Open))
-                       // string q = "SELECT * FROM main.FILE WHERE Id_message = " + callbackQuery.Message.ReplyToMessage.Document.FileId.ToString();
+                        // string q = "SELECT * FROM main.FILE WHERE Id_message = " + callbackQuery.Message.ReplyToMessage.Document.FileId.ToString();
                         // System.Data.DataTable r = SqLite.ExecuteSelect(q);
                         // string q2 = "UPDATE main.FILE SET Approved = 'Y' WHERE Id_message = " + callbackQuery.Message.ReplyToMessage.Document.FileId.ToString();
                         // SqLite.ExecuteSelect(q2); //aggiorna il database con il file
+                        GitHandler(callbackQueryEventArgs);
                     }
                     break;
                 case "n":
@@ -131,18 +163,24 @@ namespace Bot
 
         private static async System.Threading.Tasks.Task gestisciFileAsync(MessageEventArgs e)
         {
-            try
-            {  //gestisce l'arrivo del messaggio dall'utente
+            //gestisce l'arrivo del messaggio dall'utente
+            if (e.Message == null || e.Message.Document == null)
+            {
+                await botClient.SendTextMessageAsync(e.Message.From.Id, "Going back to the main menu"); //aggiunge sotto la InlineKeyboard per la selezione del what to do
+                generaStart(e);
+            }
+            else
+            {
                 Message messageFW = await botClient.ForwardMessageAsync(-1001403617749, e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
-                    new InlineKeyboardButton() {Text = "Yes", CallbackData = "y" },
-                    new InlineKeyboardButton() {Text = "No", CallbackData = "n" },
+                new InlineKeyboardButton() {Text = "Yes", CallbackData = "y" },
+                new InlineKeyboardButton() {Text = "No", CallbackData = "n" },
                 };
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
-                Message queryAW = await botClient.SendTextMessageAsync(-1001403617749, "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() +" ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
+                Message queryAW = await botClient.SendTextMessageAsync(-1001403617749, "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
                 var fileName = @"C:\Repos\doc\" + e.Message.Document.FileName;
-                using FileStream fileStream = System.IO.File.OpenWrite(fileName);              
-                string q = "INSERT INTO Main.FILE (Path, Id_owner, Data, Approved, Id_cs, Desc, Id_message) VALUES (@p, @io, @d, @a, @ic, @d, @im)";
+                using FileStream fileStream = System.IO.File.OpenWrite(fileName);
+                /*   string q = "INSERT INTO Main.FILE (Path, Id_owner, Data, Approved, Id_cs, Desc, Id_message) VALUES (@p, @io, @d, @a, @ic, @d, @im)";
                 Dictionary<string, object> keyValuePairs = new Dictionary<string, object>() {
                     {"@p", fileName },
                     {"@io", e.Message.From.Id },
@@ -152,11 +190,10 @@ namespace Bot
                     {"@d", "Default Desc"},
                     {"@im", e.Message.Document.FileId}
                 };
-                SqLite.Execute(q, keyValuePairs); //aggiorna il database con il nuovo documento
-                fileStream.Close();
+                SqLite.Execute(q, keyValuePairs); //aggiorna il database con il nuovo documento */
+                    fileStream.Close();
                 //using FileStream fileStream1 = System.IO.File.OpenRead(fileName);
             }
-            catch {}
         }
 
         private static void generaStart(MessageEventArgs e)
@@ -169,6 +206,19 @@ namespace Bot
             else
             {
                 dict[e.Message.From.Id].setStato(stati.start);
+                dict[e.Message.From.Id].resetPercorso();
+            }
+        }
+        private static void generaStartOnCallback(CallbackQueryEventArgs e)
+        {
+            if (!dict.ContainsKey(e.CallbackQuery.Message.From.Id))
+            {
+                Conversation conv = new Conversation();
+                dict.TryAdd(e.CallbackQuery.Message.From.Id, conv); //aggiunge una conversazione al dizionario, questa parte è WIP
+            }
+            else
+            {
+                dict[e.CallbackQuery.Message.From.Id].setStato(stati.start);
             }
         }
 

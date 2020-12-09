@@ -52,7 +52,10 @@ namespace Bot
 
             percorso += "/" + text;
         }
-
+        internal void resetPercorso()
+        {
+            percorso = null;
+        }
         internal string getPercorso()
         {
             return this.percorso;
