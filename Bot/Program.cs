@@ -15,6 +15,11 @@ using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Management.Automation;
+using System.Management.Automation.Runspaces;
+using System.Threading.Tasks;
+
 
 namespace Bot
 {
@@ -31,8 +36,8 @@ namespace Bot
             botClient.OnMessage += BotClient_OnMessageAsync; //gestisce i messaggi in entrata
             botClient.OnCallbackQuery += BotOnCallbackQueryReceived; //gestisce le CallbackQuery delle InlineKeyboard
             botClient.StartReceiving();
-            Thread t = new Thread(Checkmessage);
-            t.Start();
+            //Thread t = new Thread(Checkmessage);
+            //t.Start();
             Console.ReadLine();
         }
         private static void GitHandler(CallbackQueryEventArgs e)
@@ -48,7 +53,7 @@ namespace Bot
                     exec.Start(gitCommand, gitPullArgument);
                     exec.Start(gitCommand, gitAddArgument);
                     exec.Start(gitCommand, gitCommitArgument);
-                    exec.Start(gitCommand, gitPushArgument); */
+                    exec.Start(gitCommand, gitPushArgument); 
                     string cdCommand = "cd";
                     string cdArgument = @"C:\Repos" + dict[e.CallbackQuery.From.Id].getcorso() + "/" + dict[e.CallbackQuery.From.Id].getPercorso();
                     string gitCommand = @"C:\Program Files\Git\git-cmd.exe";
@@ -56,13 +61,26 @@ namespace Bot
                     string gitAddArgument = @"add -A";
                     string gitCommitArgument = @"commit -m ""Added file by Bot""";
                     string gitPushArgument = @"push";
-
                     Process.Start(cdCommand, cdArgument);
                     Process.Start(gitCommand, gitPullArgument);
                     Process.Start(gitCommand, gitAddArgument);
                     Process.Start(gitCommand, gitCommitArgument);
                     Process.Start(gitCommand, gitPushArgument);
-                   
+                   */
+                    string directory = @"C:\Repos" + dict[e.CallbackQuery.From.Id].getcorso() + "/" + dict[e.CallbackQuery.From.Id].getPercorso(); ; // directory of the git repository
+
+                    using (PowerShell powershell = PowerShell.Create())
+                    {
+                        // this changes from the user folder that PowerShell starts up with to your git repository
+                        powershell.AddScript($"cd {directory}");
+
+                        powershell.AddScript(@"git pull");
+                        powershell.AddScript(@"git add .");
+                        powershell.AddScript(@"git commit -m 'git commit by bot updated file:' --author=""elia.maggioni@gmail.com""");// + whatChanged(e));
+                        powershell.AddScript(@"git push https://Eliaxie:&MbTTJv3nhJc@https://gitlab.com/Eliaxie/matnanorepo1y.git --all");
+
+                        Collection<PSObject> results = powershell.Invoke();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -70,6 +88,12 @@ namespace Bot
                 }
             }
         }
+
+        private static string whatChanged(CallbackQueryEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         private async static void Checkmessage() //funzione di gestione del database 
         {
             while (true)
