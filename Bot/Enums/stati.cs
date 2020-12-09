@@ -10,6 +10,7 @@ namespace Bot.Enums
         start,
         Scuola, 
         Corso,
-        Cartella
+        Cartella,
+        AttesaFile
     }
 }
