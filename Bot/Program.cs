@@ -38,7 +38,7 @@ namespace Bot
         }
         static void Main2(string[] args)
         {
-            botClient = new TelegramBotClient("1307723925:AAGoudgP99mVb0BWFlggHojxyJWi5psbfbU");
+            botClient = PrivateKey.newKey();
             botClient.OnMessage += BotClient_OnMessageAsync; //gestisce i messaggi in entrata
             botClient.OnCallbackQuery += BotOnCallbackQueryReceived; //gestisce le CallbackQuery delle InlineKeyboard
             botClient.StartReceiving();
@@ -192,7 +192,7 @@ namespace Bot
                 generaStartAsync(e);
             }
             var stato = dict[e.Message.From.Id].getStato();
-            await botClient.SendTextMessageAsync(e.Message.Chat.Id, stato?.ToString()); //DEBUG
+          //  await botClient.SendTextMessageAsync(e.Message.Chat.Id, stato?.ToString()); //DEBUG
 
             switch (stato)
             {
@@ -331,7 +331,6 @@ namespace Bot
         private static async System.Threading.Tasks.Task gestisciStartAsync(MessageEventArgs e)
         {
             dict[e.Message.From.Id].setStato(stati.Scuola);
-  
             List<List<KeyboardButton>> replyKeyboard = Keyboards.getKeyboardScuole();
             IReplyMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(replyKeyboard, true, true);
             await botClient.SendTextMessageAsync(e.Message.From.Id, "Scegli una scuola" ,
@@ -341,15 +340,20 @@ namespace Bot
         private static async System.Threading.Tasks.Task gestisciCorsoAsync(MessageEventArgs e)
         {
             CorsiEnum? corsienum = (CorsiEnum?)reconEnum(e.Message.Text, typeof(CorsiEnum));
+            if(e.Message.Text == null)
+            {
+                generaStartOnBackAndNull(e);
+                return;
+            }
             if (e.Message.Text.StartsWith("🔙"))
             {
-                generaStartOnBackFromCorsoAsync(e);
+                generaStartOnBackAndNull(e);
                 return;
             }
             if (corsienum == null)
             {
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Unknown path. Going back to beginning. Use the Keyboard to navigate the folders.", ParseMode.Default, false, false, e.Message.MessageId);
-                generaStartAsync(e);
+                generaStartOnBackAndNull(e);
                 return;
             }
             else
@@ -358,19 +362,18 @@ namespace Bot
                 List<List<KeyboardButton>> replyKeyboard = Keyboards.getKeyboardPercorsi(e.Message.From.Id);
                 if (replyKeyboard == null)
                 {
-                    //dire all'utente che c'è stato un errore
+                    generaStartOnBackAndNull(e);
+                    return;
                 }
                 else
                 {
                     dict[e.Message.From.Id].setStato(stati.Cartella);
-
-
                     InviaCartellaAsync(e, replyKeyboard);
                 }
             }
         }
 
-        private static async Task generaStartOnBackFromCorsoAsync(MessageEventArgs e)
+        private static async Task generaStartOnBackAndNull(MessageEventArgs e)
         {
             generaStartAsync(e);
             BotClient_OnMessageAsync2Async(e);
@@ -393,7 +396,7 @@ namespace Bot
                 if (scuoleEnums == null)
                 {
                     await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Unknown path. Going back to beginning. Use the Keyboard to navigate the folders.", ParseMode.Default, false, false, e.Message.MessageId);
-                    generaStartAsync(e);
+                    generaStartOnBackAndNull(e);
                     return;
                 }
                 else

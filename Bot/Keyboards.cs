@@ -47,13 +47,35 @@ namespace Bot
         internal static List<List<KeyboardButton>> getKeyboardCorsi(ScuoleEnums? scuoleEnums)
         {
             List<List<KeyboardButton>> r = new List<List<KeyboardButton>>();
-            foreach (var v in Enum.GetValues(typeof(CorsiEnum)))
+            switch (scuoleEnums)
             {
-                r.Add(new List<KeyboardButton>() { new KeyboardButton() {  Text = v.ToString()} });
+                case ScuoleEnums.TREI:
+                    foreach (var v in Enum.GetValues(typeof(CorsiEnumTrei)))
+                    {
+                        r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = v.ToString() } });
+                    }
+                    break;
+                case ScuoleEnums.AIUC:
+                    foreach (var v in Enum.GetValues(typeof(CorsiEnumAIUC)))
+                    {
+                        r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = v.ToString() } });
+                    }
+                    break;
+                case ScuoleEnums.CAT:
+                    foreach (var v in Enum.GetValues(typeof(CorsiEnumCAT)))
+                    {
+                        r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = v.ToString() } });
+                    }
+                    break;
+                case ScuoleEnums.Design:
+                    foreach (var v in Enum.GetValues(typeof(CorsiEnumDesign)))
+                    {
+                        r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = v.ToString() } });
+                    }
+                    break;
             }
             r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = "🔙 back" } });
             return r;
-                
         }
 
         internal static List<List<KeyboardButton>> getKeyboardPercorsi(int id)
