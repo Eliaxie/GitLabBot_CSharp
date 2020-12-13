@@ -144,6 +144,7 @@ namespace Bot
                         await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
                         botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
                         var fileName = @"C:\Repos\" + dict[callbackQuery.From.Id].getcorso() + "/" + dict[callbackQuery.From.Id].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
+                        var fileOnlyName = dict[callbackQuery.From.Id].getcorso() + "/" + dict[callbackQuery.From.Id].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
                         try
                         {
                             int endOfPath = fileName.Split(@"\").Last().Split(@"/").Last().Length;
@@ -152,7 +153,7 @@ namespace Bot
                             using FileStream fileStream = System.IO.File.OpenWrite(fileName);
                             await botClient.GetInfoAndDownloadFileAsync(callbackQuery.Message.ReplyToMessage.Document.FileId, destination: fileStream);
                             fileStream.Close();
-                            await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, "File Saved in " + fileName + System.Environment.NewLine);
+                            await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, "File Saved in " + fileOnlyName + System.Environment.NewLine, ParseMode.Default, false, false);
                         }
                         catch {
                             await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, @"Couldn't save the file. " + "Send other files to upload them in the same folder or write anything to go back to the main menu");
@@ -169,8 +170,17 @@ namespace Bot
                     }
                     break;
                 case "n":
-                    await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied"); //Mostra un messaggio all'utente
-                    botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id ,callbackQuery.Message.MessageId, "<b>DENIED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
+                    try
+                    {
+                        string fileOnlyName = callbackQuery.Message.ReplyToMessage.Document.FileName;
+                        await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied");
+                        botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>DENIED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
+                        await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, "The file: " + fileOnlyName + " was rejected by an Admin", ParseMode.Default, false, false);
+                    }
+                    catch
+                    {
+                        await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, @"Couldn't save the file. " + "Send other files to upload them in the same folder or write anything to go back to the main menu");
+                    }
                     break;
             }
         }
@@ -232,7 +242,6 @@ namespace Bot
 
         private static async System.Threading.Tasks.Task gestisciFileAsync(MessageEventArgs e)
         {
-            await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Send your file (can be multiple). Write anything to go back to the main menu", ParseMode.Default, false, false, 0);
             //gestisce l'arrivo del messaggio dall'utente
             if (e.Message.Photo != null)
             {
@@ -242,7 +251,8 @@ namespace Bot
             if (e.Message == null || e.Message.Document == null)
             {
                 await botClient.SendTextMessageAsync(e.Message.From.Id, "Going back to the main menu"); //aggiunge sotto la InlineKeyboard per la selezione del what to do
-                generaStartAsync(e);
+                generaStartOnBackAndNull(e);
+                return;
             }
             else
             {
@@ -299,6 +309,11 @@ namespace Bot
 
         private static async System.Threading.Tasks.Task gestisciCartellaAsync(MessageEventArgs e)
         {
+            if(e.Message.Text == null)
+            {
+                generaStartOnBackAndNull(e);
+                return;
+            }
             if (e.Message.Text.StartsWith("🆗"))
             {
                 dict[e.Message.From.Id].setStato(stati.AttesaFile);
