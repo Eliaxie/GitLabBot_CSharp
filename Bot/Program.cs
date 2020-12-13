@@ -81,7 +81,7 @@ namespace Bot
                             Console.WriteLine(results[i].ToString());
                         }
                         powershell.Commands.Clear();
-                        powershell.AddScript(@"git push https://Eliaxie:""&""MbTTJv3nhJc@gitlab.com/Eliaxie/" + dict[e.CallbackQuery.Message.ReplyToMessage.ForwardFrom.Id].getGit() + @".git --all");
+                        powershell.AddScript(@"git push https://Eliaxie:" + PrivateKey.getPassword() + "@gitlab.com/Eliaxie/" + dict[e.CallbackQuery.Message.ReplyToMessage.ForwardFrom.Id].getGit() + @".git --all");
                         results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
                         {
