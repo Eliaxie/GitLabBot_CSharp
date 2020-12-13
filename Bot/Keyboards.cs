@@ -16,11 +16,14 @@ namespace Bot
         { 
             int i = 0;
 
+            if (keyboardList == null)
+            {
+                return null;
+            }
             List<string> keyboardToList = keyboardList.ToList();
 
             List<List<string>> keyboadToArray = KeyboardMarkup.ArrayToMatrixString(keyboardToList);
 
-     
      
             if (keyboadToArray == null || keyboadToArray.Count == 0)
                 return null;
@@ -41,80 +44,6 @@ namespace Bot
             return replyKeyboard;
         }
 
-        /*
-        static public List<List<KeyboardButton>> getKeyboard(ScuoleEnums? keyboardType)
-        {
-            List<List<KeyboardButton>> replyKeyboard = new List<List<KeyboardButton>>();
-            if (keyboardType == null)
-            {
-                return null;
-            }
-            switch (keyboardType)
-            {
-                case ScuoleEnums.start:
-                    replyKeyboard = new List<List<KeyboardButton>>()
-                     {
-                        new List<KeyboardButton>()
-                        {
-                            new KeyboardButton("3I"),
-                        },
-                        new List<KeyboardButton>()
-                        {
-                            new KeyboardButton("AUIC")
-                        },
-                        new List<KeyboardButton>()
-                        {
-                            new KeyboardButton("Design")
-                        },
-                        new List<KeyboardButton>()
-                        {
-                            new KeyboardButton("CAT")
-                        }
-                     };
-                    break;
-                case ScuoleEnums.TREI:
-                    replyKeyboard = new List<List<KeyboardButton>>()
-                    {
-                        new List<KeyboardButton>()
-                        {
-                            new KeyboardButton("MatNano"),
-                        },
-                        new List<KeyboardButton>()
-                        {
-                            new KeyboardButton("----")
-                        },
-                        new List<KeyboardButton>()
-                        {
-                            new KeyboardButton("----")
-                        },
-                        new List<KeyboardButton>()
-                        {
-                            new KeyboardButton("----")
-                        },
-                        new List<KeyboardButton>()
-                        {
-                            new KeyboardButton("Go Back")
-                        }
-                    };
-                    break;
-                case ScuoleEnums.AIUC:
-                    break;
-                case ScuoleEnums.Design:
-                    break;
-                case ScuoleEnums.CAT:
-                    break;
-                case ScuoleEnums.MatNano:
-                    string rootMatNano = @"C:\Repos\matnanorepo";
-                    string[] subdirectoryEntries = Directory.GetDirectories(rootMatNano);
-                    replyKeyboard = Keyboards.getKeyboard(subdirectoryEntries);
-                    break;
-                default:
-                    break;
-            }
-            return replyKeyboard;
-        }
-        */
-
         internal static List<List<KeyboardButton>> getKeyboardCorsi(ScuoleEnums? scuoleEnums)
         {
             List<List<KeyboardButton>> r = new List<List<KeyboardButton>>();
@@ -122,6 +51,7 @@ namespace Bot
             {
                 r.Add(new List<KeyboardButton>() { new KeyboardButton() {  Text = v.ToString()} });
             }
+            r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = "🔙 back" } });
             return r;
                 
         }
@@ -132,20 +62,50 @@ namespace Bot
             if (string.IsNullOrEmpty(corso))
                 return null;
             corso = corso.ToLower();
-            string rootMatNano = @"C:\Repos\"+corso;
+            string root = @"C:\Repos\"+corso;
             string percorso = Program.dict[id].getPercorso();
             if (!string.IsNullOrEmpty(percorso))
             {
-                rootMatNano += "/" + percorso;
+                root += @"\" + percorso;
             }
-            string[] subdirectoryEntries = Directory.GetDirectories(rootMatNano);
-            var k  =  Keyboards.getKeyboard(subdirectoryEntries);
-            if (k == null) { } //do nothing
+            string[] subdirectoryEntries = null;
+            if (Program.dict[id].getStato() != stati.newCartella)
+            {
+                subdirectoryEntries = Directory.GetDirectories(root);
+            }
+            if (subdirectoryEntries != null)
+            {
+                subdirectoryEntries = removeGit(subdirectoryEntries);
+            }
+            List<List<KeyboardButton>> k  =  Keyboards.getKeyboard(subdirectoryEntries);
+            if (k == null) { k = new List<List<KeyboardButton>>(); } 
+            if (percorso == null)
+            {
+                k.Insert(0, new List<KeyboardButton>() {
+                new KeyboardButton(){  Text = "🔙 back"}
+                });
+                return k;
+            }
             k.Insert(0, new List<KeyboardButton>() { 
                 new KeyboardButton(){  Text = "🔙 back"},
-                new KeyboardButton(){  Text = "🆗 Cartella Corrente"}
+                new KeyboardButton(){  Text = "🆗 Cartella Corrente"},
+                new KeyboardButton(){  Text = "🆕 New Folder"}
             });
             return k;
+        }
+
+        private static string[] removeGit(string[] subdirectoryEntries)
+        {
+            List<String> listadir = subdirectoryEntries.ToList();
+            for (int i = 0; i < listadir.Count(); i++)
+            {
+                if (listadir[i].Contains(".git"))
+                {
+                    listadir.Remove(listadir[i]);
+                    i--;
+                }
+            }
+            return listadir.ToArray();
         }
 
         internal static List<List<KeyboardButton>> getKeyboardScuole()

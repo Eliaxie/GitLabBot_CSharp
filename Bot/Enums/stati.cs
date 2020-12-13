@@ -11,6 +11,7 @@ namespace Bot.Enums
         Scuola, 
         Corso,
         Cartella,
-        AttesaFile
+        newCartella,
+        AttesaFile,
     }
 }

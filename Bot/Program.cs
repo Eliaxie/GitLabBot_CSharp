@@ -19,7 +19,7 @@ using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Threading.Tasks;
-
+using System.Linq;
 
 namespace Bot
 {
@@ -31,6 +31,12 @@ namespace Bot
 
         private static object lock1 = new object();
         static void Main(string[] args)
+        {
+            
+                    Main2(args);
+    
+        }
+        static void Main2(string[] args)
         {
             botClient = new TelegramBotClient("1307723925:AAGoudgP99mVb0BWFlggHojxyJWi5psbfbU");
             botClient.OnMessage += BotClient_OnMessageAsync; //gestisce i messaggi in entrata
@@ -46,40 +52,46 @@ namespace Bot
             {
                 try
                 {
-                    /*
-                     * Process exec = new Process();
-                    exec.
-                    exec.Start(cdCommand, cdArgument);
-                    exec.Start(gitCommand, gitPullArgument);
-                    exec.Start(gitCommand, gitAddArgument);
-                    exec.Start(gitCommand, gitCommitArgument);
-                    exec.Start(gitCommand, gitPushArgument); 
-                    string cdCommand = "cd";
-                    string cdArgument = @"C:\Repos" + dict[e.CallbackQuery.From.Id].getcorso() + "/" + dict[e.CallbackQuery.From.Id].getPercorso();
-                    string gitCommand = @"C:\Program Files\Git\git-cmd.exe";
-                    string gitPullArgument = "pull";
-                    string gitAddArgument = @"add -A";
-                    string gitCommitArgument = @"commit -m ""Added file by Bot""";
-                    string gitPushArgument = @"push";
-                    Process.Start(cdCommand, cdArgument);
-                    Process.Start(gitCommand, gitPullArgument);
-                    Process.Start(gitCommand, gitAddArgument);
-                    Process.Start(gitCommand, gitCommitArgument);
-                    Process.Start(gitCommand, gitPushArgument);
-                   */
-                    string directory = @"C:\Repos" + dict[e.CallbackQuery.From.Id].getcorso() + "/" + dict[e.CallbackQuery.From.Id].getPercorso(); ; // directory of the git repository
-
+                    string directory = @"C:\Repos" + @"\" + dict[e.CallbackQuery.Message.ReplyToMessage.ForwardFrom.Id].getcorso() + @"\" + dict[e.CallbackQuery.Message.ReplyToMessage.ForwardFrom.Id].getGit() + @"\"; // directory of the git repository
+                    Console.WriteLine(directory);
                     using (PowerShell powershell = PowerShell.Create())
                     {
                         // this changes from the user folder that PowerShell starts up with to your git repository
-                        powershell.AddScript($"cd {directory}");
-
+                        powershell.AddScript("cd " + directory);
                         powershell.AddScript(@"git pull");
-                        powershell.AddScript(@"git add .");
-                        powershell.AddScript(@"git commit -m 'git commit by bot updated file:' --author=""elia.maggioni@gmail.com""");// + whatChanged(e));
-                        powershell.AddScript(@"git push https://Eliaxie:&MbTTJv3nhJc@https://gitlab.com/Eliaxie/matnanorepo1y.git --all");
-
-                        Collection<PSObject> results = powershell.Invoke();
+                        List<PSObject> results = powershell.Invoke().ToList();
+                        for (int i = 0; i < results.Count(); i++)
+                        {
+                            Console.WriteLine(results[i].ToString());
+                        }
+                        powershell.Commands.Clear();
+                        powershell.AddScript(@"git add . --ignore-errors");
+                        results = powershell.Invoke().ToList();
+                        for (int i = 0; i < results.Count(); i++)
+                        {
+                            Console.WriteLine(results[i].ToString());
+                        }
+                        powershell.Commands.Clear();
+                        Console.WriteLine(whatChanged(e));
+                        string commit = @"git commit -m 'git commit by bot updated file: " + whatChanged(e) + @"' --author=""elia.maggioni@gmail.com""";
+                        powershell.AddScript(commit);
+                        results = powershell.Invoke().ToList();
+                        for (int i = 0; i < results.Count(); i++)
+                        {
+                            Console.WriteLine(results[i].ToString());
+                        }
+                        powershell.Commands.Clear();
+                        powershell.AddScript(@"git push https://Eliaxie:""&""MbTTJv3nhJc@gitlab.com/Eliaxie/" + dict[e.CallbackQuery.Message.ReplyToMessage.ForwardFrom.Id].getGit() + @".git --all");
+                        results = powershell.Invoke().ToList();
+                        for (int i = 0; i < results.Count(); i++)
+                        {
+                            Console.WriteLine(results[i].ToString());
+                        }
+                        powershell.Commands.Clear();
+                        for (int i = 0; i<results.Count(); i++) 
+                        {
+                            Console.WriteLine(results[i].ToString());
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -91,7 +103,14 @@ namespace Bot
 
         private static string whatChanged(CallbackQueryEventArgs e)
         {
-            throw new NotImplementedException();
+            if (e.CallbackQuery.Message.ReplyToMessage.Document != null)
+            {
+                Console.WriteLine(e.CallbackQuery.Message.ReplyToMessage.Document.FileName);
+                return e.CallbackQuery.Message.ReplyToMessage.Document.FileName;
+            }
+            else if (e.CallbackQuery.Message.ReplyToMessage.Photo != null)
+                return "foto";
+            else return "name unknown";
         }
 
         private async static void Checkmessage() //funzione di gestione del database 
@@ -125,10 +144,20 @@ namespace Bot
                         await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
                         botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
                         var fileName = @"C:\Repos\" + dict[callbackQuery.From.Id].getcorso() + "/" + dict[callbackQuery.From.Id].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
-                        using FileStream fileStream = System.IO.File.OpenWrite(fileName);
-                        await botClient.GetInfoAndDownloadFileAsync(callbackQuery.Message.ReplyToMessage.Document.FileId, destination: fileStream);
+                        try
+                        {
+                            int endOfPath = fileName.Split(@"\").Last().Split(@"/").Last().Length;
+                            //string a = fileName.ToCharArray().Take(fileName.Length - endOfPath).ToString();
+                            System.IO.Directory.CreateDirectory(fileName.Substring(0, fileName.Length - endOfPath));
+                            using FileStream fileStream = System.IO.File.OpenWrite(fileName);
+                            await botClient.GetInfoAndDownloadFileAsync(callbackQuery.Message.ReplyToMessage.Document.FileId, destination: fileStream);
+                            fileStream.Close();
+                            await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, "File Saved in " + fileName + System.Environment.NewLine);
+                        }
+                        catch {
+                            await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, @"Couldn't save the file. " + "Send other files to upload them in the same folder or write anything to go back to the main menu");
+                        }
                         //salva il file 
-                        await botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "File Saved in " + fileName + System.Environment.NewLine + "Send other files to upload them in the same folder or write anything to go back to the main menu");
                         //  InputOnlineFile inputOnlineFile = new InputOnlineFile(fileStream, e.Message.Document.FileName);
                         //  await botClient.SendDocumentAsync(-1001403617749, inputOnlineFile);
                         //  using (var sendFileStream = File.Open(fileName, FileMode.Open))
@@ -155,12 +184,12 @@ namespace Bot
             ;
             if (e.Message.Text == "/start")
             {
-                generaStart(e);
+                generaStartAsync(e);
             }
             Console.WriteLine(e.Message.Text);
             if (!dict.ContainsKey(e.Message.From.Id))
             {
-                generaStart(e);
+                generaStartAsync(e);
             }
             var stato = dict[e.Message.From.Id].getStato();
             await botClient.SendTextMessageAsync(e.Message.Chat.Id, stato?.ToString()); //DEBUG
@@ -182,19 +211,42 @@ namespace Bot
                 case stati.AttesaFile:
                     gestisciFileAsync(e);
                     break;
+                case stati.newCartella:
+                    gestisciNewCartellaAsync(e);
+                    break;
             }
+        }
+
+        private static async Task gestisciNewCartellaAsync(MessageEventArgs e)
+        {
+            dict[e.Message.From.Id].scesoDiUnLivello(e.Message.Text);
+            generaNewCartella(e);
+            dict[e.Message.From.Id].setStato(stati.Cartella);
+        }
+
+        private static void generaNewCartella(MessageEventArgs e)
+        {
+            List<List<KeyboardButton>> replyKeyboard = Keyboards.getKeyboardPercorsi(e.Message.From.Id);
+            InviaCartellaAsync(e, replyKeyboard);
         }
 
         private static async System.Threading.Tasks.Task gestisciFileAsync(MessageEventArgs e)
         {
+            await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Send your file (can be multiple). Write anything to go back to the main menu", ParseMode.Default, false, false, 0);
             //gestisce l'arrivo del messaggio dall'utente
+            if (e.Message.Photo != null)
+            {
+                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Photos can only be sent without compression", ParseMode.Default, false, false, 0);
+                return;
+            }
             if (e.Message == null || e.Message.Document == null)
             {
                 await botClient.SendTextMessageAsync(e.Message.From.Id, "Going back to the main menu"); //aggiunge sotto la InlineKeyboard per la selezione del what to do
-                generaStart(e);
+                generaStartAsync(e);
             }
             else
             {
+                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File sent for approval", ParseMode.Default, false, false, e.Message.MessageId);
                 Message messageFW = await botClient.ForwardMessageAsync(-1001403617749, e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
                 new InlineKeyboardButton() {Text = "Yes", CallbackData = "y" },
@@ -203,7 +255,6 @@ namespace Bot
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
                 Message queryAW = await botClient.SendTextMessageAsync(-1001403617749, "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
                 var fileName = @"C:\Repos\doc\" + e.Message.Document.FileName;
-                using FileStream fileStream = System.IO.File.OpenWrite(fileName);
                 /*   string q = "INSERT INTO Main.FILE (Path, Id_owner, Data, Approved, Id_cs, Desc, Id_message) VALUES (@p, @io, @d, @a, @ic, @d, @im)";
                 Dictionary<string, object> keyValuePairs = new Dictionary<string, object>() {
                     {"@p", fileName },
@@ -215,17 +266,17 @@ namespace Bot
                     {"@im", e.Message.Document.FileId}
                 };
                 SqLite.Execute(q, keyValuePairs); //aggiorna il database con il nuovo documento */
-                    fileStream.Close();
                 //using FileStream fileStream1 = System.IO.File.OpenRead(fileName);
             }
         }
 
-        private static void generaStart(MessageEventArgs e)
+
+        private static async Task generaStartAsync(MessageEventArgs e)
         {
             if (!dict.ContainsKey(e.Message.From.Id))
             {
                 Conversation conv = new Conversation();
-                dict.TryAdd(e.Message.From.Id, conv); //aggiunge una conversazione al dizionario, questa parte è WIP
+                dict.TryAdd(e.Message.From.Id, conv);
             }
             else
             {
@@ -250,13 +301,17 @@ namespace Bot
         {
             if (e.Message.Text.StartsWith("🆗"))
             {
-                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Inserisci il file", ParseMode.Default, false, false, 0);
                 dict[e.Message.From.Id].setStato(stati.AttesaFile);
+                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Send your file (can be multiple). Write anything to go back to the main menu", ParseMode.Default, false, false, 0);
             }
             else if (e.Message.Text.StartsWith("🔙"))
             {
-                generaStart(e);
+                generaStartAsync(e);
                 BotClient_OnMessageAsync2Async(e);
+            }
+            else if (e.Message.Text.StartsWith("🆕"))
+            {
+                generaCartellaAsync(e);
             }
             else
             {
@@ -265,6 +320,12 @@ namespace Bot
                 List<List<KeyboardButton>> replyKeyboard = Keyboards.getKeyboardPercorsi(e.Message.From.Id);
                 InviaCartellaAsync(e, replyKeyboard);
             }
+        }
+
+        private static async Task generaCartellaAsync(MessageEventArgs e)
+        {
+            dict[e.Message.From.Id].setStato(stati.newCartella);
+            await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Write the name of the new folder", ParseMode.Default, false, false, e.Message.MessageId);
         }
 
         private static async System.Threading.Tasks.Task gestisciStartAsync(MessageEventArgs e)
@@ -280,9 +341,15 @@ namespace Bot
         private static async System.Threading.Tasks.Task gestisciCorsoAsync(MessageEventArgs e)
         {
             CorsiEnum? corsienum = (CorsiEnum?)reconEnum(e.Message.Text, typeof(CorsiEnum));
+            if (e.Message.Text.StartsWith("🔙"))
+            {
+                generaStartOnBackFromCorsoAsync(e);
+                return;
+            }
             if (corsienum == null)
             {
-                //todo: dire all'utente che ha sbagliato
+                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Unknown path. Going back to beginning. Use the Keyboard to navigate the folders.", ParseMode.Default, false, false, e.Message.MessageId);
+                generaStartAsync(e);
                 return;
             }
             else
@@ -303,6 +370,12 @@ namespace Bot
             }
         }
 
+        private static async Task generaStartOnBackFromCorsoAsync(MessageEventArgs e)
+        {
+            generaStartAsync(e);
+            BotClient_OnMessageAsync2Async(e);
+        }
+
         private static async System.Threading.Tasks.Task InviaCartellaAsync(MessageEventArgs e, List<List<KeyboardButton>> replyKeyboard)
         {
             if (replyKeyboard == null)
@@ -319,7 +392,8 @@ namespace Bot
                 ScuoleEnums? scuoleEnums = (ScuoleEnums?)reconEnum(e.Message.Text, typeof(ScuoleEnums));
                 if (scuoleEnums == null)
                 {
-                    //todo: dire all'utente che ha sbagliato a cliccare
+                    await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Unknown path. Going back to beginning. Use the Keyboard to navigate the folders.", ParseMode.Default, false, false, e.Message.MessageId);
+                    generaStartAsync(e);
                     return;
                 }
                 else

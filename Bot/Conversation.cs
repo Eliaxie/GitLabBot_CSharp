@@ -1,6 +1,7 @@
 ﻿using Bot.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Bot
@@ -59,6 +60,11 @@ namespace Bot
         internal string getPercorso()
         {
             return this.percorso;
+        }
+
+        internal string getGit()
+        {
+            return getPercorso().Split(@"\").First().Split(@"/").First();
         }
     }
 }
