@@ -82,16 +82,17 @@ namespace Bot
                         }
                         powershell.Commands.Clear();
                         powershell.AddScript(@"git push https://Eliaxie:" + PrivateKey.getPassword() + "@gitlab.com/Eliaxie/" + dict[e.CallbackQuery.Message.ReplyToMessage.ForwardFrom.Id].getGit() + @".git --all");
+                        for (int i = 0; i < powershell.Commands.Commands.Count(); i++)
+                        {
+                            Console.WriteLine(powershell.Commands.Commands[i].ToString());
+                        }
                         results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
                         {
                             Console.WriteLine(results[i].ToString());
                         }
                         powershell.Commands.Clear();
-                        for (int i = 0; i<results.Count(); i++) 
-                        {
-                            Console.WriteLine(results[i].ToString());
-                        }
+                        powershell.Stop();
                     }
                 }
                 catch (Exception ex)
