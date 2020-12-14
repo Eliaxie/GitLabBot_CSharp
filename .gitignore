@@ -1,3 +1,4 @@
 Bot/obj/*
 .vs/*
 Bot/PrivateKey.cs
+Bot/Enums/ChannelsForApproval.cs
