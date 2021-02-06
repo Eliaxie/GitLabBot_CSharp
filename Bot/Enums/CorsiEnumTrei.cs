@@ -1,7 +1,10 @@
 ﻿namespace Bot
 {
-    internal enum CorsiEnumTrei
+    internal enum CorsiEnumTrei //VANNO AGGIUNTI TUTTI A CORSIENUM
     {
-        MATNANO
+        [System.ComponentModel.Description("MatNano")]
+        MATNANO,
+        [System.ComponentModel.Description("Info/Tele")]
+        Info
     }
 }

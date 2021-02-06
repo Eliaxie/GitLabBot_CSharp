@@ -1,6 +1,6 @@
 ﻿namespace Bot
 {
-    internal enum CorsiEnumDesign
+    internal enum CorsiEnumDesign //VANNO AGGIUNTI TUTTI A CORSIENUM
     {
     }
 }

@@ -4,8 +4,11 @@ using System.Text;
 
 namespace Bot.Enums
 {
-    public enum CorsiEnum
+    public enum CorsiEnum //VANNO AGGIUNTI TUTTI A CORSIENUM
     {
-        MATNANO
+        [System.ComponentModel.Description("MatNano")]
+        MATNANO,
+        [System.ComponentModel.Description("Info/Tele")]
+        Info
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Bot
 {
-    internal enum CorsiEnumAIUC
+    internal enum CorsiEnumAIUC //VANNO AGGIUNTI TUTTI A CORSIENUM
     {
     }
 }

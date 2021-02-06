@@ -20,6 +20,7 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Threading.Tasks;
 using System.Linq;
+using Markdig.Syntax;
 
 namespace Bot
 {
@@ -32,15 +33,22 @@ namespace Bot
         private static object lock1 = new object();
         static void Main(string[] args)
         {
-            
-                    Main2(args);
-    
+
+            var t = new Thread(() => Main2(args));
+            t.Start();
         }
         static void Main2(string[] args)
         {
             botClient = PrivateKey.newKey();
-            botClient.OnMessage += BotClient_OnMessageAsync; //gestisce i messaggi in entrata
-            botClient.OnCallbackQuery += BotOnCallbackQueryReceived; //gestisce le CallbackQuery delle InlineKeyboard
+            try
+            {
+                botClient.OnMessage += BotClient_OnMessageAsync; //gestisce i messaggi in entrata
+                botClient.OnCallbackQuery += BotOnCallbackQueryReceived; //gestisce le CallbackQuery delle InlineKeyboard
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
             botClient.StartReceiving();
             //Thread t = new Thread(Checkmessage);
             //t.Start();
@@ -50,10 +58,14 @@ namespace Bot
         {
             lock (lock1)
             {
+                var callbackQuery = e.CallbackQuery;
+                String[] callbackdata = callbackQuery.Data.Split("|");
+                long FromId = Int64.Parse(callbackdata[1]);
                 try
                 {
-                    string directory = @"C:\Repos" + @"\" + dict[e.CallbackQuery.Message.ReplyToMessage.ForwardFrom.Id].getcorso() + @"\" + dict[e.CallbackQuery.Message.ReplyToMessage.ForwardFrom.Id].getGit() + @"\"; // directory of the git repository
+                    string directory = @"C:\Repos" + @"\" + dict[FromId].getcorso() + @"\" + dict[FromId].getGit() + @"\"; // directory of the git repository
                     Console.WriteLine(directory);
+                    Console.WriteLine("GetGit: " + dict[FromId].getGit());
                     using (PowerShell powershell = PowerShell.Create())
                     {
                         // this changes from the user folder that PowerShell starts up with to your git repository
@@ -73,7 +85,7 @@ namespace Bot
                         }
                         powershell.Commands.Clear();
                         Console.WriteLine(whatChanged(e));
-                        string commit = @"git commit -m 'git commit by bot updated file: " + whatChanged(e) + @"' --author=""elia.maggioni@gmail.com""";
+                        string commit = @"git commit -m 'git commit by bot updated file: " + whatChanged(e) + @"' --author=""polinetwork2@gmail.com""";
                         powershell.AddScript(commit);
                         results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
@@ -81,7 +93,7 @@ namespace Bot
                             Console.WriteLine(results[i].ToString());
                         }
                         powershell.Commands.Clear();
-                        powershell.AddScript(@"git push https://Eliaxie:" + PrivateKey.getPassword() + "@gitlab.com/Eliaxie/" + dict[e.CallbackQuery.Message.ReplyToMessage.ForwardFrom.Id].getGit() + @".git --all");
+                        powershell.AddScript(@"git push https://polibot:" + PrivateKey.getPassword() + "@gitlab.com/polinetwork/" + dict[FromId].getGit() + @".git --all");
                         for (int i = 0; i < powershell.Commands.Commands.Count(); i++)
                         {
                             Console.WriteLine(powershell.Commands.Commands[i].ToString());
@@ -94,6 +106,7 @@ namespace Bot
                         powershell.Commands.Clear();
                         powershell.Stop();
                     }
+                   
                 }
                 catch (Exception ex)
                 {
@@ -134,40 +147,59 @@ namespace Bot
                 Thread.Sleep(1000 * 1);
             }
         }
-
-        private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs callbackQueryEventArgs) 
+        private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
+        {
+            try
+            {
+                BotOnCallbackQueryReceived2(sender, callbackQueryEventArgs);
+            }
+            catch (ArgumentException exception)
+            {
+                Console.WriteLine(exception.Message);
+                await botClient.SendTextMessageAsync(1440223848, "Exception generated:" + System.Environment.NewLine + exception.Message);
+            }
+        }
+        private static async void BotOnCallbackQueryReceived2(object sender, CallbackQueryEventArgs callbackQueryEventArgs) 
         {
             var callbackQuery = callbackQueryEventArgs.CallbackQuery;
-            switch (callbackQuery.Data)
+            String[] callbackdata = callbackQuery.Data.Split("|");
+            long FromId = Int64.Parse(callbackdata[1]);
+            switch (callbackdata[0]) // FORMATO: Y o N | ID PERSONA | ID MESSAGGIO (DEL DOC)
             {
                 case "y":
                     {
-                        await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
-                        botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
-                        var fileName = @"C:\Repos\" + dict[callbackQuery.From.Id].getcorso() + "/" + dict[callbackQuery.From.Id].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
-                        var fileOnlyName = dict[callbackQuery.From.Id].getcorso() + "/" + dict[callbackQuery.From.Id].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
-                        try
+                    throw new ArgumentException("Index is out of range");
+                    await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
+                    var message = botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
+                    if (callbackQuery.Message.ReplyToMessage.Document.FileSize > 20000000)
                         {
-                            int endOfPath = fileName.Split(@"\").Last().Split(@"/").Last().Length;
-                            //string a = fileName.ToCharArray().Take(fileName.Length - endOfPath).ToString();
-                            System.IO.Directory.CreateDirectory(fileName.Substring(0, fileName.Length - endOfPath));
-                            using FileStream fileStream = System.IO.File.OpenWrite(fileName);
-                            await botClient.GetInfoAndDownloadFileAsync(callbackQuery.Message.ReplyToMessage.Document.FileId, destination: fileStream);
-                            fileStream.Close();
-                            await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, "File Saved in " + fileOnlyName + System.Environment.NewLine, ParseMode.Default, false, false);
+                            await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[FromId].getcorso()), "Il file " + callbackQuery.Message.ReplyToMessage.Document.FileName + " supera il massimo peso consentito, non sarà possibile caricarlo tramite bot. Puoi caricarlo direttamente manualmente da GitLab.", ParseMode.Default, false, false); //aggiunge sotto la InlineKeyboard per la selezione del what to do
                         }
-                        catch {
-                            await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, @"Couldn't save the file. " + "Send other files to upload them in the same folder or write anything to go back to the main menu");
-                        }
-                        //salva il file 
-                        //  InputOnlineFile inputOnlineFile = new InputOnlineFile(fileStream, e.Message.Document.FileName);
-                        //  await botClient.SendDocumentAsync(-1001403617749, inputOnlineFile);
-                        //  using (var sendFileStream = File.Open(fileName, FileMode.Open))
-                        // string q = "SELECT * FROM main.FILE WHERE Id_message = " + callbackQuery.Message.ReplyToMessage.Document.FileId.ToString();
-                        // System.Data.DataTable r = SqLite.ExecuteSelect(q);
-                        // string q2 = "UPDATE main.FILE SET Approved = 'Y' WHERE Id_message = " + callbackQuery.Message.ReplyToMessage.Document.FileId.ToString();
-                        // SqLite.ExecuteSelect(q2); //aggiorna il database con il file
-                        GitHandler(callbackQueryEventArgs);
+                        var fileName = @"C:\Repos\" + dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
+                    var fileOnlyName = dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
+                    try
+                    {
+                        int endOfPath = fileName.Split(@"\").Last().Split(@"/").Last().Length;
+                        //string a = fileName.ToCharArray().Take(fileName.Length - endOfPath).ToString();
+                        System.IO.Directory.CreateDirectory(fileName.Substring(0, fileName.Length - endOfPath));
+                        using FileStream fileStream = System.IO.File.OpenWrite(fileName);
+                        await botClient.GetInfoAndDownloadFileAsync(callbackQuery.Message.ReplyToMessage.Document.FileId, destination: fileStream);
+                        fileStream.Close();
+                        await botClient.SendTextMessageAsync(FromId, "File Saved in " + fileOnlyName + System.Environment.NewLine, ParseMode.Default, false, false);
+                    }
+                    catch {
+                        
+                        await botClient.SendTextMessageAsync(FromId, @"Couldn't save the file. Bot only support files up to 20MBs, although you can open a Pull Request on GitLab to upload it or ask an Admin to do it. " + "Send other files to upload them in the same folder or write anything to go back to the main menu");
+                    }
+                    //salva il file 
+                    //  InputOnlineFile inputOnlineFile = new InputOnlineFile(fileStream, e.Message.Document.FileName);
+                    //  await botClient.SendDocumentAsync(-1001403617749, inputOnlineFile);
+                    //  using (var sendFileStream = File.Open(fileName, FileMode.Open))
+                    // string q = "SELECT * FROM main.FILE WHERE Id_message = " + callbackQuery.Message.ReplyToMessage.Document.FileId.ToString();
+                    // System.Data.DataTable r = SqLite.ExecuteSelect(q);
+                    // string q2 = "UPDATE main.FILE SET Approved = 'Y' WHERE Id_message = " + callbackQuery.Message.ReplyToMessage.Document.FileId.ToString();
+                    // SqLite.ExecuteSelect(q2); //aggiorna il database con il file
+                    GitHandler(callbackQueryEventArgs);
                     }
                     break;
                 case "n":
@@ -176,18 +208,26 @@ namespace Bot
                         string fileOnlyName = callbackQuery.Message.ReplyToMessage.Document.FileName;
                         await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied");
                         botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>DENIED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
-                        await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, "The file: " + fileOnlyName + " was rejected by an Admin", ParseMode.Default, false, false);
+                        await botClient.SendTextMessageAsync(FromId, "The file: " + fileOnlyName + " was rejected by an Admin", ParseMode.Default, false, false);
                     }
                     catch
                     {
-                        await botClient.SendTextMessageAsync(callbackQuery.Message.ReplyToMessage.ForwardFrom.Id, @"Couldn't save the file. " + "Send other files to upload them in the same folder or write anything to go back to the main menu");
+                        await botClient.SendTextMessageAsync(FromId, @"Couldn't save the file. " + "Send other files to upload them in the same folder or write anything to go back to the main menu");
                     }
                     break;
             }
         }
         private static async void BotClient_OnMessageAsync(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
-            BotClient_OnMessageAsync2Async(e);
+            try
+            {
+                await BotClient_OnMessageAsync2Async(e);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                await botClient.SendTextMessageAsync(1440223848, "Exception generated:" + System.Environment.NewLine + exception.Message);
+            }
         }
 
         private static async System.Threading.Tasks.Task BotClient_OnMessageAsync2Async(MessageEventArgs e)
@@ -260,8 +300,8 @@ namespace Bot
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File sent for approval", ParseMode.Default, false, false, e.Message.MessageId);
                 Message messageFW = await botClient.ForwardMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
-                new InlineKeyboardButton() {Text = "Yes", CallbackData = "y" },
-                new InlineKeyboardButton() {Text = "No", CallbackData = "n" },
+                new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id}, // y/n|From.Id
+                new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id},
                 };
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
                 Message queryAW = await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do

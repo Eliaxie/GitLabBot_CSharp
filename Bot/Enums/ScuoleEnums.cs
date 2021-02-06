@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Bot.Enums
 {
-    public enum ScuoleEnums
+    public enum ScuoleEnums //VANNO AGGIUNTI TUTTI A CORSIENUM
     {       
         [System.ComponentModel.Description("3I")]
         TREI,
