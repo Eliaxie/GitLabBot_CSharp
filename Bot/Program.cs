@@ -50,8 +50,6 @@ namespace Bot
                 Console.WriteLine(exception.Message);
             }
             botClient.StartReceiving();
-            //Thread t = new Thread(Checkmessage);
-            //t.Start();
             Console.ReadLine();
         }
         private static void GitHandler(CallbackQueryEventArgs e)
@@ -63,7 +61,7 @@ namespace Bot
                 long FromId = Int64.Parse(callbackdata[1]);
                 try
                 {
-                    string directory = @"C:\Repos" + @"\" + dict[FromId].getcorso() + @"\" + dict[FromId].getGit() + @"\"; // directory of the git repository
+                    string directory = PrivateKey.root + @"\" + dict[FromId].getcorso() + @"\" + dict[FromId].getGit() + @"\"; // directory of the git repository
                     Console.WriteLine(directory);
                     Console.WriteLine("GetGit: " + dict[FromId].getGit());
                     using (PowerShell powershell = PowerShell.Create())
@@ -151,15 +149,16 @@ namespace Bot
         {
             try
             {
-                BotOnCallbackQueryReceived2(sender, callbackQueryEventArgs);
+                await BotOnCallbackQueryReceived2(sender, callbackQueryEventArgs);
             }
-            catch (ArgumentException exception)
+            catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                await botClient.SendTextMessageAsync(1440223848, "Exception generated:" + System.Environment.NewLine + exception.Message);
+                await botClient.SendTextMessageAsync(-1001455083049, "Exception generated:" + System.Environment.NewLine + exception.Message + System.Environment.NewLine + "Stack trace: " + System.Environment.NewLine + exception.StackTrace);
             }
         }
-        private static async void BotOnCallbackQueryReceived2(object sender, CallbackQueryEventArgs callbackQueryEventArgs) 
+
+        private static async Task BotOnCallbackQueryReceived2(object sender, CallbackQueryEventArgs callbackQueryEventArgs) 
         {
             var callbackQuery = callbackQueryEventArgs.CallbackQuery;
             String[] callbackdata = callbackQuery.Data.Split("|");
@@ -168,14 +167,13 @@ namespace Bot
             {
                 case "y":
                     {
-                    throw new ArgumentException("Index is out of range");
                     await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
                     var message = botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
                     if (callbackQuery.Message.ReplyToMessage.Document.FileSize > 20000000)
                         {
                             await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[FromId].getcorso()), "Il file " + callbackQuery.Message.ReplyToMessage.Document.FileName + " supera il massimo peso consentito, non sarà possibile caricarlo tramite bot. Puoi caricarlo direttamente manualmente da GitLab.", ParseMode.Default, false, false); //aggiunge sotto la InlineKeyboard per la selezione del what to do
                         }
-                        var fileName = @"C:\Repos\" + dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
+                        var fileName = PrivateKey.root + dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
                     var fileOnlyName = dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
                     try
                     {
@@ -226,13 +224,12 @@ namespace Bot
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                await botClient.SendTextMessageAsync(1440223848, "Exception generated:" + System.Environment.NewLine + exception.Message);
+                await botClient.SendTextMessageAsync(-1001455083049, "Exception generated:" + System.Environment.NewLine + exception.Message + System.Environment.NewLine + "Stack trace: " + System.Environment.NewLine + exception.StackTrace);
             }
         }
 
         private static async System.Threading.Tasks.Task BotClient_OnMessageAsync2Async(MessageEventArgs e)
         {
-            ;
             if (e.Message.Text == "/start")
             {
                 generaStartAsync(e);
@@ -305,7 +302,7 @@ namespace Bot
                 };
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
                 Message queryAW = await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
-                var fileName = @"C:\Repos\doc\" + e.Message.Document.FileName;
+                var fileName = PrivateKey.root + @"\doc\" + e.Message.Document.FileName;
                 /*   string q = "INSERT INTO Main.FILE (Path, Id_owner, Data, Approved, Id_cs, Desc, Id_message) VALUES (@p, @io, @d, @a, @ic, @d, @im)";
                 Dictionary<string, object> keyValuePairs = new Dictionary<string, object>() {
                     {"@p", fileName },

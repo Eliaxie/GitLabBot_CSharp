@@ -84,7 +84,7 @@ namespace Bot
             if (string.IsNullOrEmpty(corso))
                 return null;
             corso = corso.ToLower();
-            string root = @"C:\Repos\"+corso;
+            string root = PrivateKey.root+corso;
             string percorso = Program.dict[id].getPercorso();
             if (!string.IsNullOrEmpty(percorso))
             {
