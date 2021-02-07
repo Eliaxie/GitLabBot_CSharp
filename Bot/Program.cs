@@ -63,7 +63,9 @@ namespace Bot
                 {
                     string directory = PrivateKey.root + @"/" + dict[FromId].getcorso() + @"/" + dict[FromId].getGit() + @"/"; // directory of the git repository
                     Console.WriteLine(directory);
+                    botClient.SendTextMessageAsync(-1001399914655, directory + System.Environment.NewLine);
                     Console.WriteLine("GetGit: " + dict[FromId].getGit());
+                    botClient.SendTextMessageAsync(-1001399914655, "GetGit: " + dict[FromId].getGit() + System.Environment.NewLine);
                     using (PowerShell powershell = PowerShell.Create())
                     {
                         // this changes from the user folder that PowerShell starts up with to your git repository
@@ -80,26 +82,33 @@ namespace Bot
                         for (int i = 0; i < results.Count(); i++)
                         {
                             Console.WriteLine(results[i].ToString());
+                            botClient.SendTextMessageAsync(-1001399914655, results[i].ToString() + System.Environment.NewLine);
+
                         }
                         powershell.Commands.Clear();
                         Console.WriteLine(whatChanged(e));
+                        botClient.SendTextMessageAsync(-1001399914655, whatChanged(e) + System.Environment.NewLine);
+
                         string commit = @"git commit -m 'git commit by bot updated file: " + whatChanged(e) + @"' --author=""polinetwork2@gmail.com""";
                         powershell.AddScript(commit);
                         results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
                         {
                             Console.WriteLine(results[i].ToString());
+                            botClient.SendTextMessageAsync(-1001399914655, results[i].ToString() + System.Environment.NewLine);
                         }
                         powershell.Commands.Clear();
                         powershell.AddScript(@"git push https://polibot:" + PrivateKey.getPassword() + "@gitlab.com/polinetwork/" + dict[FromId].getGit() + @".git --all");
                         for (int i = 0; i < powershell.Commands.Commands.Count(); i++)
                         {
                             Console.WriteLine(powershell.Commands.Commands[i].ToString());
+                            botClient.SendTextMessageAsync(-1001399914655, powershell.Commands.Commands[i].ToString() + System.Environment.NewLine);
                         }
                         results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
                         {
                             Console.WriteLine(results[i].ToString());
+                            botClient.SendTextMessageAsync(-1001399914655, results[i].ToString() + System.Environment.NewLine);
                         }
                         powershell.Commands.Clear();
                         powershell.Stop();
@@ -109,6 +118,7 @@ namespace Bot
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    botClient.SendTextMessageAsync(-1001399914655, ex.Message + System.Environment.NewLine);
                 }
             }
         }
@@ -118,6 +128,7 @@ namespace Bot
             if (e.CallbackQuery.Message.ReplyToMessage.Document != null)
             {
                 Console.WriteLine(e.CallbackQuery.Message.ReplyToMessage.Document.FileName);
+                botClient.SendTextMessageAsync(-1001399914655, e.CallbackQuery.Message.ReplyToMessage.Document.FileName + System.Environment.NewLine);
                 return e.CallbackQuery.Message.ReplyToMessage.Document.FileName;
             }
             else if (e.CallbackQuery.Message.ReplyToMessage.Photo != null)
@@ -235,6 +246,7 @@ namespace Bot
                 generaStartAsync(e);
             }
             Console.WriteLine(e.Message.Text);
+            await botClient.SendTextMessageAsync(-1001399914655, e.Message.Text + System.Environment.NewLine);
             if (!dict.ContainsKey(e.Message.From.Id))
             {
                 generaStartAsync(e);
