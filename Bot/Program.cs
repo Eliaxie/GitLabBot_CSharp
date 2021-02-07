@@ -386,7 +386,7 @@ namespace Bot
             string[] sottoCartelle = Keyboards.getDir(e.Message.From.Id);
             foreach (string a in sottoCartelle)
             {
-                if(a.Equals(e.Message.Text)) return true;
+                if(a.Split(@"\").Last().Split(@"/").Last().Equals(e.Message.Text.Split(@"\").Last().Split(@"/").Last())) return true;
             }
             return false;
         }
