@@ -242,7 +242,6 @@ namespace Bot
 
         private static async System.Threading.Tasks.Task BotClient_OnMessageAsync2Async(MessageEventArgs e)
         {
-            throw new ArgumentException("bla bla");
             if (e.Message.Text == "/start")
             {
                 generaStartAsync(e);
