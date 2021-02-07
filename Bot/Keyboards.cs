@@ -78,13 +78,13 @@ namespace Bot
             return r;
         }
 
-        internal static List<List<KeyboardButton>> getKeyboardPercorsi(int id)
+        internal static String[] getDir(int id)
         {
             string corso = Program.dict[id].getcorso();
             if (string.IsNullOrEmpty(corso))
                 return null;
             corso = corso.ToLower();
-            string root = PrivateKey.root+corso;
+            string root = PrivateKey.root + corso;
             string percorso = Program.dict[id].getPercorso();
             if (!string.IsNullOrEmpty(percorso))
             {
@@ -99,6 +99,12 @@ namespace Bot
             {
                 subdirectoryEntries = removeGit(subdirectoryEntries);
             }
+            return subdirectoryEntries;
+        }
+        internal static List<List<KeyboardButton>> getKeyboardPercorsi(int id)
+        {
+            string[] subdirectoryEntries = getDir(id);
+            string percorso = Program.dict[id].getPercorso();
             List<List<KeyboardButton>> k  =  Keyboards.getKeyboard(subdirectoryEntries);
             if (k == null) { k = new List<List<KeyboardButton>>(); } 
             if (percorso == null)

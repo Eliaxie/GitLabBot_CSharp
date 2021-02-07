@@ -368,11 +368,27 @@ namespace Bot
             }
             else
             {
-                //nome di una cartella 
-                dict[e.Message.From.Id].scesoDiUnLivello(e.Message.Text);
-                List<List<KeyboardButton>> replyKeyboard = Keyboards.getKeyboardPercorsi(e.Message.From.Id);
-                InviaCartellaAsync(e, replyKeyboard);
+                if (!verificaSottoCartelle(e))
+                {
+                    await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Folder not recognized. Use the button to create a new one.", ParseMode.Default, false, false, 0);
+                }
+                else
+                {
+                    dict[e.Message.From.Id].scesoDiUnLivello(e.Message.Text);
+                    List<List<KeyboardButton>> replyKeyboard = Keyboards.getKeyboardPercorsi(e.Message.From.Id);
+                    InviaCartellaAsync(e, replyKeyboard);
+                }
             }
+        }
+
+        private static bool verificaSottoCartelle(MessageEventArgs e)
+        {
+            string[] sottoCartelle = Keyboards.getDir(e.Message.From.Id);
+            foreach (string a in sottoCartelle)
+            {
+                if(a.Equals(e.Message.Text)) return true;
+            }
+            return false;
         }
 
         private static async Task generaCartellaAsync(MessageEventArgs e)
@@ -465,7 +481,7 @@ namespace Bot
                     string text = scuoleEnums.ToString();
                     if (text == "TREI")
                     {
-                        text = "3i";
+                        text = "3I";
                     }
                     await botClient.SendTextMessageAsync(e.Message.From.Id, "Selezionata " + 
                         text, ParseMode.Default, false, false, 0, replyKeyboardMarkup);
