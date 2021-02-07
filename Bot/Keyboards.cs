@@ -35,7 +35,7 @@ namespace Bot
                 List<KeyboardButton> x2 = new List<KeyboardButton>();
                 foreach (string l3 in l2)
                 {   
-                    string[] path = l3.Split(@"\");
+                    string[] path = l3.Split(@"/");
                     var len = path.Length;
                     x2.Add(new KeyboardButton(path[len-1]));
                 }
@@ -88,7 +88,7 @@ namespace Bot
             string percorso = Program.dict[id].getPercorso();
             if (!string.IsNullOrEmpty(percorso))
             {
-                root += @"\" + percorso;
+                root += @"/" + percorso;
             }
             string[] subdirectoryEntries = null;
             if (Program.dict[id].getStato() != stati.newCartella)
@@ -135,7 +135,14 @@ namespace Bot
             List<List<KeyboardButton>> r = new List<List<KeyboardButton>>();
             foreach (var v in Enum.GetValues(typeof(ScuoleEnums)))
             {
-                r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = v.ToString() } });
+                if (v.ToString() == "TREI")
+                {
+                    r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = "3I" } });
+                }
+                else
+                {
+                    r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = v.ToString() } });
+                }
             }
             return r;
         }

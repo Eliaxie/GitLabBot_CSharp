@@ -61,7 +61,7 @@ namespace Bot
                 long FromId = Int64.Parse(callbackdata[1]);
                 try
                 {
-                    string directory = PrivateKey.root + @"\" + dict[FromId].getcorso() + @"\" + dict[FromId].getGit() + @"\"; // directory of the git repository
+                    string directory = PrivateKey.root + @"/" + dict[FromId].getcorso() + @"/" + dict[FromId].getGit() + @"/"; // directory of the git repository
                     Console.WriteLine(directory);
                     Console.WriteLine("GetGit: " + dict[FromId].getGit());
                     using (PowerShell powershell = PowerShell.Create())
@@ -177,7 +177,7 @@ namespace Bot
                     var fileOnlyName = dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
                     try
                     {
-                        int endOfPath = fileName.Split(@"\").Last().Split(@"/").Last().Length;
+                        int endOfPath = fileName.Split(@"/").Last().Split(@"/").Last().Length;
                         //string a = fileName.ToCharArray().Take(fileName.Length - endOfPath).ToString();
                         System.IO.Directory.CreateDirectory(fileName.Substring(0, fileName.Length - endOfPath));
                         using FileStream fileStream = System.IO.File.OpenWrite(fileName);
@@ -302,7 +302,7 @@ namespace Bot
                 };
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
                 Message queryAW = await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
-                var fileName = PrivateKey.root + @"\doc\" + e.Message.Document.FileName;
+                var fileName = PrivateKey.root + @"/doc/" + e.Message.Document.FileName;
                 /*   string q = "INSERT INTO Main.FILE (Path, Id_owner, Data, Approved, Id_cs, Desc, Id_message) VALUES (@p, @io, @d, @a, @ic, @d, @im)";
                 Dictionary<string, object> keyValuePairs = new Dictionary<string, object>() {
                     {"@p", fileName },
@@ -445,6 +445,10 @@ namespace Bot
         {
             try
             {
+                if(e.Message.Text == "3I")
+                {
+                    e.Message.Text = "TREI";
+                }
                 ScuoleEnums? scuoleEnums = (ScuoleEnums?)reconEnum(e.Message.Text, typeof(ScuoleEnums));
                 if (scuoleEnums == null)
                 {
@@ -458,8 +462,13 @@ namespace Bot
                     dict[e.Message.From.Id].setScuola(scuoleEnums);
                     List<List<KeyboardButton>> replyKeyboard = Keyboards.getKeyboardCorsi(scuoleEnums);
                     IReplyMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(replyKeyboard, true, true);
+                    string text = scuoleEnums.ToString();
+                    if (text == "TREI")
+                    {
+                        text = "3i";
+                    }
                     await botClient.SendTextMessageAsync(e.Message.From.Id, "Selezionata " + 
-                        scuoleEnums.ToString(), ParseMode.Default, false, false, 0, replyKeyboardMarkup);
+                        text, ParseMode.Default, false, false, 0, replyKeyboardMarkup);
                 }
             }
             catch

@@ -16,4 +16,5 @@ namespace Bot.Enums
         Design,
             
     }
+
 }
