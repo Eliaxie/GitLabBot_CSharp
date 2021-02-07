@@ -172,6 +172,7 @@ namespace Bot
 
         private static async Task BotOnCallbackQueryReceived2(object sender, CallbackQueryEventArgs callbackQueryEventArgs) 
         {
+            throw new ArgumentException("bla bla");
             var callbackQuery = callbackQueryEventArgs.CallbackQuery;
             String[] callbackdata = callbackQuery.Data.Split("|");
             long FromId = Int64.Parse(callbackdata[1]);
