@@ -223,7 +223,7 @@ namespace Bot
                     {
                         string fileOnlyName = callbackQuery.Message.ReplyToMessage.Document.FileName;
                         await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied");
-                        botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>DENIED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
+                        botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>DENIED</b> by " + callbackQuery.From.FirstName, ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
                         await botClient.SendTextMessageAsync(FromId, "The file: " + fileOnlyName + " was rejected by an Admin", ParseMode.Default, false, false);
                     }
                     catch
