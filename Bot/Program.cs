@@ -21,6 +21,7 @@ using System.Management.Automation.Runspaces;
 using System.Threading.Tasks;
 using System.Linq;
 using Markdig.Syntax;
+using Telegram.Bot.Requests;
 
 namespace Bot
 {
@@ -173,22 +174,22 @@ namespace Bot
         private static async Task BotOnCallbackQueryReceived2(object sender, CallbackQueryEventArgs callbackQueryEventArgs) 
         {
             var callbackQuery = callbackQueryEventArgs.CallbackQuery;
-            if (!userIsAdmin(sender, callbackQueryEventArgs.CallbackQuery.ChatInstance))
-            {
-                await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied! You need to be admin of this channel to approve"); //Mostra un messaggio all'utente
-
-            }
             String[] callbackdata = callbackQuery.Data.Split("|");
             long FromId = Int64.Parse(callbackdata[1]);
+            if (!userIsAdmin(callbackQuery.From.Id, callbackQueryEventArgs.CallbackQuery.Message.Chat.Id))
+            {
+                await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied! You need to be admin of this channel"); //Mostra un messaggio all'utente
+                return;
+            }
             switch (callbackdata[0]) // FORMATO: Y o N | ID PERSONA | ID MESSAGGIO (DEL DOC)
             {
                 case "y":
                     {
                     await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
-                    var message = botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b> by" + callbackQuery.From.FirstName, ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
+                    var message = botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b> by " + callbackQuery.From.FirstName, ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
                     if (callbackQuery.Message.ReplyToMessage.Document.FileSize > 20000000)
                         {
-                            await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[FromId].getcorso()), "Il file " + callbackQuery.Message.ReplyToMessage.Document.FileName + " supera il massimo peso consentito, non sarà possibile caricarlo tramite bot. Puoi caricarlo direttamente manualmente da GitLab.", ParseMode.Default, false, false); //aggiunge sotto la InlineKeyboard per la selezione del what to do
+                            await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[FromId].getcorso()), "Can't upload " + callbackQuery.Message.ReplyToMessage.Document.FileName + ". file size exceeds maximum allowed size. You can upload it manually from GitLab.", ParseMode.Default, false, false); //aggiunge sotto la InlineKeyboard per la selezione del what to do
                         }
                         var fileName = PrivateKey.root + dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
                     var fileOnlyName = dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
@@ -233,10 +234,19 @@ namespace Bot
             }
         }
 
-        private static bool userIsAdmin(object sender, string chatInstance)
+        private static bool userIsAdmin(int sender, long chatId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var admin = botClient.GetChatMemberAsync(chatId, sender).Result;
+                return admin.Status == ChatMemberStatus.Administrator || admin.Status == ChatMemberStatus.Creator;
+            }
+            catch
+            {
+                return false;
+            }
         }
+
 
         private static async void BotClient_OnMessageAsync(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
