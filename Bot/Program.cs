@@ -103,7 +103,7 @@ namespace Bot
                         for (int i = 0; i < powershell.Commands.Commands.Count(); i++)
                         {
                             Console.WriteLine(powershell.Commands.Commands[i].ToString());
-                            botClient.SendTextMessageAsync(-1001399914655, "Log: " + powershell.Commands.Commands[i].ToString() + System.Environment.NewLine);
+                            botClient.SendTextMessageAsync(-1001399914655, "Log: " + powershell.Commands.Commands[i].ToString() + System.Environment.NewLine, ParseMode.Default, true);
                         }
                         results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
