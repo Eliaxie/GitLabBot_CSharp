@@ -173,6 +173,11 @@ namespace Bot
         private static async Task BotOnCallbackQueryReceived2(object sender, CallbackQueryEventArgs callbackQueryEventArgs) 
         {
             var callbackQuery = callbackQueryEventArgs.CallbackQuery;
+            if (!userIsAdmin(sender, callbackQueryEventArgs.CallbackQuery.ChatInstance))
+            {
+                await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied! You need to be admin of this channel to approve"); //Mostra un messaggio all'utente
+
+            }
             String[] callbackdata = callbackQuery.Data.Split("|");
             long FromId = Int64.Parse(callbackdata[1]);
             switch (callbackdata[0]) // FORMATO: Y o N | ID PERSONA | ID MESSAGGIO (DEL DOC)
@@ -180,7 +185,7 @@ namespace Bot
                 case "y":
                     {
                     await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
-                    var message = botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b>", ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
+                    var message = botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b> by" + callbackQuery.From.FirstName, ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
                     if (callbackQuery.Message.ReplyToMessage.Document.FileSize > 20000000)
                         {
                             await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[FromId].getcorso()), "Il file " + callbackQuery.Message.ReplyToMessage.Document.FileName + " supera il massimo peso consentito, non sarà possibile caricarlo tramite bot. Puoi caricarlo direttamente manualmente da GitLab.", ParseMode.Default, false, false); //aggiunge sotto la InlineKeyboard per la selezione del what to do
@@ -227,6 +232,12 @@ namespace Bot
                     break;
             }
         }
+
+        private static bool userIsAdmin(object sender, string chatInstance)
+        {
+            throw new NotImplementedException();
+        }
+
         private static async void BotClient_OnMessageAsync(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
             try
