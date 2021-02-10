@@ -3,7 +3,7 @@
     internal enum CorsiEnumTrei //VANNO AGGIUNTI TUTTI A CORSIENUM
     {
         [System.ComponentModel.Description("MatNano")]
-        MATNANO,
+        MatNano,
         [System.ComponentModel.Description("Info/Tele")]
         Info,
         [System.ComponentModel.Description("Mobility MD")]
