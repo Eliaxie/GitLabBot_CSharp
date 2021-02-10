@@ -5,6 +5,8 @@
         [System.ComponentModel.Description("MatNano")]
         MATNANO,
         [System.ComponentModel.Description("Info/Tele")]
-        Info
+        Info,
+        [System.ComponentModel.Description("Mobility MD")]
+        MobilityMD
     }
 }

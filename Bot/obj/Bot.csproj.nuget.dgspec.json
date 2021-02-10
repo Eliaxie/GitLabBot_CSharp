@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "/home/elma/GitLabBot_CSharp/Bot/Bot.csproj": {}
+    "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj": {}
   },
   "projects": {
-    "/home/elma/GitLabBot_CSharp/Bot/Bot.csproj": {
+    "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/elma/GitLabBot_CSharp/Bot/Bot.csproj",
+        "projectUniqueName": "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj",
         "projectName": "Bot",
-        "projectPath": "/home/elma/GitLabBot_CSharp/Bot/Bot.csproj",
-        "packagesPath": "/home/elma/.nuget/packages/",
-        "outputPath": "/home/elma/GitLabBot_CSharp/Bot/obj/",
+        "projectPath": "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj",
+        "packagesPath": "C:\\Users\\elia_\\.nuget\\packages\\",
+        "outputPath": "C:\\Repos\\GitLabBot_CSharp\\Bot\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/elma/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\elia_\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -78,7 +80,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.102/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.200-preview.20601.7\\RuntimeIdentifierGraph.json"
         }
       }
     }

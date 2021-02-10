@@ -10,8 +10,8 @@ namespace Bot.Enums
         TREI,
         [System.ComponentModel.Description("AUIC")]
         AIUC,
-        [System.ComponentModel.Description("CAT")]
-        CAT,
+        [System.ComponentModel.Description("ICAT")]
+        ICAT,
         [System.ComponentModel.Description("Design")]
         Design,
             

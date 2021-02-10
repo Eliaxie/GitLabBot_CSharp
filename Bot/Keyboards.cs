@@ -61,7 +61,7 @@ namespace Bot
                         r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = v.ToString() } });
                     }
                     break;
-                case ScuoleEnums.CAT:
+                case ScuoleEnums.ICAT:
                     foreach (var v in Enum.GetValues(typeof(CorsiEnumCAT)))
                     {
                         r.Add(new List<KeyboardButton>() { new KeyboardButton() { Text = v.ToString() } });
