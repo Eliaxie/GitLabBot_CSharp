@@ -13,7 +13,7 @@ namespace Bot.Enums
         static ChatId defaultChannel = 0;
         static ChatId matNanoChannel = -1001227167038;
         static ChatId infoChannel = -1001422638605;
-        static ChatId mobilityMDChannel = -1001422638605;
+        static ChatId mobilityMDChannel = -1001401676534;
         static ChatId debug = -1001403617749;
 
         internal static ChatId getChannel(string v)
