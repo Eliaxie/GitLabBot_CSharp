@@ -109,12 +109,12 @@ namespace PoliNetworkBot_CSharp.Code.Utils
                     }
             }
 
-            var lines = list.Count / 3;
-            if (list.Count % 3 != 0) lines++;
+            var lines = list.Count / 2;
+            if (list.Count % 2 != 0) lines++;
 
             for (var i = 0; i < lines; i++) r.Add(new List<string>());
 
-            for (var i = 0; i < list.Count; i++) r[i / 3].Add(list[i]);
+            for (var i = 0; i < list.Count; i++) r[i / 2].Add(list[i]);
 
             return r;
         }
