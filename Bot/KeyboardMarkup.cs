@@ -38,7 +38,7 @@ namespace PoliNetworkBot_CSharp.Code.Utils
                         r.Add(r2);
                         return r;
                     }
-
+/*
                 case 3:
                     {
                         var r2 = new List<string>
@@ -107,8 +107,9 @@ namespace PoliNetworkBot_CSharp.Code.Utils
                         r.Add(r3);
                         return r;
                     }
+*/
             }
-
+            
             var lines = list.Count / 2;
             if (list.Count % 2 != 0) lines++;
 
