@@ -268,7 +268,7 @@ namespace Bot
                 generaStartAsync(e);
             }
             Console.WriteLine(e.Message.Text);
-            await botClient.SendTextMessageAsync(-1001399914655, "Log: " + e.Message.Text + System.Environment.NewLine);
+            //await botClient.SendTextMessageAsync(-1001399914655, "Log: " + e.Message.Text + System.Environment.NewLine);
             if (!dict.ContainsKey(e.Message.From.Id))
             {
                 generaStartAsync(e);
