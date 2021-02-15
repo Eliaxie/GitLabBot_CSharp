@@ -86,7 +86,7 @@ namespace Bot
             try
             {
                 Dictionary<string, string> deserializeObject =
-                    Deserialize<Dictionary<string, string>>(System.IO.File.Open("/home/elma/bot/dictPath.bin",
+                    Deserialize<Dictionary<string, string>>(System.IO.File.Open("/home/ubuntu/bot/dictPath.bin",
                         FileMode.Open));
                 dictPaths = deserializeObject;
             }
@@ -424,7 +424,7 @@ namespace Bot
                     dictPaths.Remove(e.Message.Document.FileUniqueId, out oldPath);
                     dictPaths.Add(e.Message.Document.FileUniqueId, file);
                 };
-                Serialize(dictPaths, System.IO.File.Open("/home/elma/bot/dictPath.bin", FileMode.Create));
+                Serialize(dictPaths, System.IO.File.Open("/home/ubuntu/bot/dictPath.bin", FileMode.Create));
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
                 new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId}, // y/n|From.Id|fileUniqueID
                 new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId},
