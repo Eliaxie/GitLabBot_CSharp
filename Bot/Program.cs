@@ -176,12 +176,13 @@ namespace Bot
             var callbackQuery = callbackQueryEventArgs.CallbackQuery;
             String[] callbackdata = callbackQuery.Data.Split("|");
             long FromId = Int64.Parse(callbackdata[1]);
+            string fileNameWithPath = callbackdata[2];
             if (!userIsAdmin(callbackQuery.From.Id, callbackQueryEventArgs.CallbackQuery.Message.Chat.Id))
             {
                 await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied! You need to be admin of this channel"); //Mostra un messaggio all'utente
                 return;
             }
-            switch (callbackdata[0]) // FORMATO: Y o N | ID PERSONA | ID MESSAGGIO (DEL DOC)
+            switch (callbackdata[0]) // FORMATO: Y o N | ID PERSONA | ID MESSAGGIO (DEL DOC) | filename
             {
                 case "y":
                     {
@@ -190,9 +191,9 @@ namespace Bot
                     if (callbackQuery.Message.ReplyToMessage.Document.FileSize > 20000000)
                         {
                             await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[FromId].getcorso()), "Can't upload " + callbackQuery.Message.ReplyToMessage.Document.FileName + ". file size exceeds maximum allowed size. You can upload it manually from GitLab.", ParseMode.Default, false, false); //aggiunge sotto la InlineKeyboard per la selezione del what to do
-                        }
-                        var fileName = PrivateKey.root + dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
-                    var fileOnlyName = dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + callbackQuery.Message.ReplyToMessage.Document.FileName;
+                        } 
+                    var fileName = fileNameWithPath;
+                    var fileOnlyName = fileName.Substring(PrivateKey.root.Length);
                     try
                     {
                         int endOfPath = fileName.Split(@"/").Last().Split(@"/").Last().Length;
@@ -330,9 +331,11 @@ namespace Bot
             {
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File sent for approval", ParseMode.Default, false, false, e.Message.MessageId);
                 Message messageFW = await botClient.ForwardMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
+                long FromId = e.Message.From.Id;
+                var file = PrivateKey.root + dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + e.Message.Document.FileName;
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
-                new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id}, // y/n|From.Id
-                new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id},
+                new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id + "|" + file}, // y/n|From.Id
+                new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id + "|" + file},
                 };
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
                 Message queryAW = await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
