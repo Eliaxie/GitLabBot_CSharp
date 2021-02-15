@@ -119,8 +119,15 @@ namespace Bot
                 directory = "";
                 for (int i = 0; i < a.Length - 1; i++)
                 {
-                    directory = directory + a[i] +"/";
+                    directory = directory + a[i] + "/";
                 }
+                string[] b = directory.Split("'");
+                directory = "";
+                for (int i = 0; i < b.Length; i++)
+                {
+                    directory = directory + b[i] +"\'\'";
+                }
+                directory = directory.Substring(0, directory.Length - 2);
                 try
                 {
                     // string directory = PrivateKey.root + @"/" + dict[FromId].getcorso() + @"/" + dict[FromId].getGit() + @"/"; // directory of the git repository
@@ -515,7 +522,7 @@ namespace Bot
             string[] sottoCartelle = Keyboards.getDir(e.Message.From.Id);
             foreach (string a in sottoCartelle)
             {
-                if(a.Split(@"\").Last().Split(@"/").Last().Equals(e.Message.Text.Split(@"\").Last().Split(@"/").Last())) return true;
+                if(a.Split(@"/").Last().Equals(e.Message.Text.Split(@"/").Last())) return true;
             }
             return false;
         }

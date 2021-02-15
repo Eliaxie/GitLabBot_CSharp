@@ -64,7 +64,7 @@ namespace Bot
 
         internal string getGit()
         {
-            return getPercorso().Split(@"\").First().Split(@"/").First();
+            return getPercorso().Split(@"/").First();
         }
     }
 }
