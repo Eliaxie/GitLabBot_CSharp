@@ -20,17 +20,59 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
 using Markdig.Syntax;
+using Microsoft.VisualBasic;
 using Telegram.Bot.Requests;
 
 namespace Bot
 {
+    [Serializable]
     public class Program
     {
         static TelegramBotClient botClient = null;
 
         public static Dictionary<long, Conversation> dict = new Dictionary<long, Conversation>(); //inizializzazione del dizionario <utente, Conversation>
+        public static Dictionary<string, string> dictPaths = new Dictionary<string, string>(); //inizializzazione del dizionario <ID univoco file, stringa documento>
+        public static void Serialize<Object>(Object dictionary, Stream stream)
+        {
+            try // try to serialize the collection to a file
+            {
+                using (stream)
+                {
+                    // create BinaryFormatter
+                    BinaryFormatter bin = new BinaryFormatter();
+                    // serialize the collection (EmployeeList1) to file (stream)
+                    bin.Serialize(stream, dictionary);
+                }
+            }
+            catch (IOException) { Console.WriteLine("dict non esistente? ser"); }
+        }
 
+        public static Object Deserialize<Object>(Stream stream) where Object : new()
+        {
+            Object ret = CreateInstance<Object>();
+            try
+            {
+                using (stream)
+                {
+                    // create BinaryFormatter
+                    BinaryFormatter bin = new BinaryFormatter();
+                    // deserialize the collection (Employee) from file (stream)
+                    ret = (Object)bin.Deserialize(stream);
+                }
+            }
+            catch (IOException) { Console.WriteLine("dict non esistente? deser"); }
+            return ret;
+        }
+
+        // function to create instance of T
+        public static Object CreateInstance<Object>() where Object : new()
+        {
+            return (Object)Activator.CreateInstance(typeof(Object));
+        }
+        
         private static object lock1 = new object();
         static void Main(string[] args)
         {
@@ -41,6 +83,17 @@ namespace Bot
         static void Main2(string[] args)
         {
             botClient = PrivateKey.newKey();
+            try
+            {
+                Dictionary<string, string> deserializeObject =
+                    Deserialize<Dictionary<string, string>>(System.IO.File.Open("/home/elma/bot/dictPath.bin",
+                        FileMode.Open));
+                dictPaths = deserializeObject;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
             try
             {
                 botClient.OnMessage += BotClient_OnMessageAsync; //gestisce i messaggi in entrata
@@ -60,13 +113,21 @@ namespace Bot
                 var callbackQuery = e.CallbackQuery;
                 String[] callbackdata = callbackQuery.Data.Split("|");
                 long FromId = Int64.Parse(callbackdata[1]);
+                string directory;
+                if (!dictPaths.TryGetValue(callbackdata[2], out directory)) throw new Exception("Errore nel dizionario dei Path in GITHANDLER!");
+                string[] a = directory.Split("/");
+                directory = "";
+                for (int i = 0; i < a.Length - 1; i++)
+                {
+                    directory = directory + a[i] +"/";
+                }
                 try
                 {
-                    string directory = PrivateKey.root + @"/" + dict[FromId].getcorso() + @"/" + dict[FromId].getGit() + @"/"; // directory of the git repository
+                    // string directory = PrivateKey.root + @"/" + dict[FromId].getcorso() + @"/" + dict[FromId].getGit() + @"/"; // directory of the git repository
                     Console.WriteLine(directory);
                     botClient.SendTextMessageAsync(-1001399914655, "Log: " + directory + System.Environment.NewLine);
-                    Console.WriteLine("GetGit: " + dict[FromId].getGit());
-                    botClient.SendTextMessageAsync(-1001399914655, "Log: " + "GetGit: " + dict[FromId].getGit() + System.Environment.NewLine);
+                    Console.WriteLine("GetGit: " + getGit(directory));
+                    botClient.SendTextMessageAsync(-1001399914655, "Log: " + "GetGit: " + getGit(directory) + System.Environment.NewLine);
                     using (PowerShell powershell = PowerShell.Create())
                     {
                         // this changes from the user folder that PowerShell starts up with to your git repository
@@ -100,7 +161,7 @@ namespace Bot
                             botClient.SendTextMessageAsync(-1001399914655, "Log: " + results[i].ToString() + System.Environment.NewLine);
                         }
                         powershell.Commands.Clear();
-                        powershell.AddScript(@"git push https://polibot:" + PrivateKey.getPassword() + "@gitlab.com/polinetwork/" + dict[FromId].getGit() + @".git --all");
+                        powershell.AddScript(@"git push https://polibot:" + PrivateKey.getPassword() + "@gitlab.com/polinetwork/" + getGit(directory) + @".git --all");
                         for (int i = 0; i < powershell.Commands.Commands.Count(); i++)
                         {
                             Console.WriteLine(powershell.Commands.Commands[i].ToString());
@@ -123,6 +184,11 @@ namespace Bot
                     botClient.SendTextMessageAsync(-1001399914655, "Log: " + ex.Message + System.Environment.NewLine);
                 }
             }
+        }
+
+        private static object getGit(string directory)
+        {
+            return directory.Split("/").GetValue(3);
         }
 
         private static string whatChanged(CallbackQueryEventArgs e)
@@ -176,13 +242,14 @@ namespace Bot
             var callbackQuery = callbackQueryEventArgs.CallbackQuery;
             String[] callbackdata = callbackQuery.Data.Split("|");
             long FromId = Int64.Parse(callbackdata[1]);
-            string fileNameWithPath = callbackdata[2];
+            string fileNameWithPath;
+            if (!dictPaths.TryGetValue(callbackdata[2], out fileNameWithPath)) throw new Exception("Errore nel dizionario dei Path!");
             if (!userIsAdmin(callbackQuery.From.Id, callbackQueryEventArgs.CallbackQuery.Message.Chat.Id))
             {
                 await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Denied! You need to be admin of this channel"); //Mostra un messaggio all'utente
                 return;
             }
-            switch (callbackdata[0]) // FORMATO: Y o N | ID PERSONA | ID MESSAGGIO (DEL DOC) | filename
+            switch (callbackdata[0]) // FORMATO: Y o N | ID PERSONA | ID MESSAGGIO (DEL DOC) | fileUniqueID
             {
                 case "y":
                     {
@@ -266,13 +333,13 @@ namespace Bot
         {
             if (e.Message.Text == "/start")
             {
-                generaStartAsync(e);
+                await generaStartAsync(e);
             }
             Console.WriteLine(e.Message.Text);
             //await botClient.SendTextMessageAsync(-1001399914655, "Log: " + e.Message.Text + System.Environment.NewLine);
             if (!dict.ContainsKey(e.Message.From.Id))
             {
-                generaStartAsync(e);
+                await generaStartAsync(e);
             }
             var stato = dict[e.Message.From.Id].getStato();
           //  await botClient.SendTextMessageAsync(e.Message.Chat.Id, stato?.ToString()); //DEBUG
@@ -280,22 +347,22 @@ namespace Bot
             switch (stato)
             {
                 case stati.start:
-                    gestisciStartAsync(e);
+                    await gestisciStartAsync(e);
                     break;
                 case stati.Scuola:
-                    gestisciScuolaAsync(e);
+                    await gestisciScuolaAsync(e);
                     break;
                 case stati.Corso:
-                    gestisciCorsoAsync(e);
+                    await gestisciCorsoAsync(e);
                     break;
                 case stati.Cartella:
-                    gestisciCartellaAsync(e);
+                    await gestisciCartellaAsync(e);
                     break;
                 case stati.AttesaFile:
-                    gestisciFileAsync(e);
+                    await gestisciFileAsync(e);
                     break;
                 case stati.newCartella:
-                    gestisciNewCartellaAsync(e);
+                    await gestisciNewCartellaAsync(e);
                     break;
             }
         }
@@ -331,11 +398,36 @@ namespace Bot
             {
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File sent for approval", ParseMode.Default, false, false, e.Message.MessageId);
                 Message messageFW = await botClient.ForwardMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
-                long FromId = e.Message.From.Id;
-                var file = PrivateKey.root + dict[FromId].getcorso() + "/" + dict[FromId].getPercorso() + "/" + e.Message.Document.FileName;
+                var file = PrivateKey.root + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + "/" + e.Message.Document.FileName;
+                if (!dictPaths.TryAdd(e.Message.Document.FileUniqueId, file))
+                {
+                    string oldPath;
+                    //Verifica anti-SPAM, da attivare se servisse
+                    /*
+                    if (dictPaths.TryGetValue(e.Message.Document.FileUniqueId, out oldPath))
+                    {
+                        if (oldPath.Split("/").GetValue(2).Equals(file.Split("/").GetValue(2)))
+                        {
+                            await botClient.SendTextMessageAsync(e.Message.Chat.Id,
+                                "File already present in " + oldPath + "if not, this file has been denied already.", ParseMode.Default, false, false,
+                                e.Message.MessageId);
+                            throw new Exception("File already present");
+                        }
+                        dictPaths.Remove(e.Message.Document.FileUniqueId, out oldPath);
+                        dictPaths.Add(e.Message.Document.FileUniqueId, file);
+                    }
+                    else
+                    {
+                        throw new Exception("Fatal error while handling path dictionary");
+                    }
+                    */
+                    dictPaths.Remove(e.Message.Document.FileUniqueId, out oldPath);
+                    dictPaths.Add(e.Message.Document.FileUniqueId, file);
+                };
+                Serialize(dictPaths, System.IO.File.Open("/home/elma/bot/dictPath.bin", FileMode.Create));
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
-                new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id + "|" + file}, // y/n|From.Id
-                new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id + "|" + file},
+                new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId}, // y/n|From.Id|fileUniqueID
+                new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId},
                 };
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
                 Message queryAW = await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
