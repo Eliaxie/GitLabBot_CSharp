@@ -10456,19 +10456,19 @@
     ]
   },
   "packageFolders": {
-    "/home/elma/.nuget/packages/": {}
+    "/home/ubuntu/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/elma/GitLabBot_CSharp/Bot/Bot.csproj",
+      "projectUniqueName": "/home/ubuntu/GitLabBot_CSharp/Bot/Bot.csproj",
       "projectName": "Bot",
-      "projectPath": "/home/elma/GitLabBot_CSharp/Bot/Bot.csproj",
-      "packagesPath": "/home/elma/.nuget/packages/",
-      "outputPath": "/home/elma/GitLabBot_CSharp/Bot/obj/",
+      "projectPath": "/home/ubuntu/GitLabBot_CSharp/Bot/Bot.csproj",
+      "packagesPath": "/home/ubuntu/.nuget/packages/",
+      "outputPath": "/home/ubuntu/GitLabBot_CSharp/Bot/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/elma/.nuget/NuGet/NuGet.Config"
+        "/home/ubuntu/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net5.0"
@@ -10532,7 +10532,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.102/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/home/ubuntu/.dotnet/sdk/5.0.102/RuntimeIdentifierGraph.json"
       }
     }
   }
