@@ -138,13 +138,13 @@ namespace Bot
                     using (PowerShell powershell = PowerShell.Create())
                     {
                         // this changes from the user folder that PowerShell starts up with to your git repository
-                        powershell.AddScript("cd " + directory);
+                        powershell.AddScript("cd " + getGit(directory));
                         powershell.AddScript(@"git pull");
                         List<PSObject> results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
                         {
                             Console.WriteLine(results[i].ToString());
-                            botClient.SendTextMessageAsync(-1001399914655, "Log: " + results[i].ToString() + System.Environment.NewLine);
+                            botClient.SendTextMessageAsync(-1001399914655, "Log: Git Pull result: " + results[i].ToString() + System.Environment.NewLine);
                         }
                         powershell.Commands.Clear();
                         powershell.AddScript(@"git add . --ignore-errors");
@@ -152,12 +152,12 @@ namespace Bot
                         for (int i = 0; i < results.Count(); i++)
                         {
                             Console.WriteLine(results[i].ToString());
-                            botClient.SendTextMessageAsync(-1001399914655, "Log: " + results[i].ToString() + System.Environment.NewLine);
+                            botClient.SendTextMessageAsync(-1001399914655, "Log: Git Add result: " + results[i].ToString() + System.Environment.NewLine);
 
                         }
                         powershell.Commands.Clear();
                         Console.WriteLine(whatChanged(e));
-                        botClient.SendTextMessageAsync(-1001399914655, "Log: " + whatChanged(e) + System.Environment.NewLine);
+                        botClient.SendTextMessageAsync(-1001399914655, "Log: WhatChanged: " + whatChanged(e) + System.Environment.NewLine);
 
                         string commit = @"git commit -m 'git commit by bot updated file: " + whatChanged(e) + @"' --author=""polinetwork2@gmail.com""";
                         powershell.AddScript(commit);
@@ -165,20 +165,20 @@ namespace Bot
                         for (int i = 0; i < results.Count(); i++)
                         {
                             Console.WriteLine(results[i].ToString());
-                            botClient.SendTextMessageAsync(-1001399914655, "Log: " + results[i].ToString() + System.Environment.NewLine);
+                            botClient.SendTextMessageAsync(-1001399914655, "Log: Result commit: " + results[i].ToString() + System.Environment.NewLine);
                         }
                         powershell.Commands.Clear();
                         powershell.AddScript(@"git push https://polibot:" + PrivateKey.getPassword() + "@gitlab.com/polinetwork/" + getGit(directory) + @".git --all");
                         for (int i = 0; i < powershell.Commands.Commands.Count(); i++)
                         {
                             Console.WriteLine(powershell.Commands.Commands[i].ToString());
-                            botClient.SendTextMessageAsync(-1001399914655, "Log: " + powershell.Commands.Commands[i].ToString() + System.Environment.NewLine, ParseMode.Default, true);
+                            botClient.SendTextMessageAsync(-1001399914655, "Log: push commands: " + powershell.Commands.Commands[i].ToString() + System.Environment.NewLine, ParseMode.Default, true);
                         }
                         results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
                         {
                             Console.WriteLine(results[i].ToString());
-                            botClient.SendTextMessageAsync(-1001399914655, "Log: " + results[i].ToString() + System.Environment.NewLine);
+                            botClient.SendTextMessageAsync(-1001399914655, "Log: Result push: " + results[i].ToString() + System.Environment.NewLine);
                         }
                         powershell.Commands.Clear();
                         powershell.Stop();
@@ -188,7 +188,7 @@ namespace Bot
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    botClient.SendTextMessageAsync(-1001399914655, "Log: " + ex.Message + System.Environment.NewLine);
+                    botClient.SendTextMessageAsync(-1001399914655, "Log: Exception! " + System.Environment.NewLine + ex.Message + System.Environment.NewLine);
                 }
             }
         }
