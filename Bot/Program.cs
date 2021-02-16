@@ -138,7 +138,8 @@ namespace Bot
                     using (PowerShell powershell = PowerShell.Create())
                     {
                         // this changes from the user folder that PowerShell starts up with to your git repository
-                        powershell.AddScript("cd " + getGit(directory));
+                        string dirCD = "/" + getRoot(directory) + "/" + getCorso(directory) + "/" + getGit(directory) + "/";
+                        powershell.AddScript("cd " + dirCD);
                         powershell.AddScript(@"git pull");
                         List<PSObject> results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
@@ -191,6 +192,16 @@ namespace Bot
                     botClient.SendTextMessageAsync(-1001399914655, "Log: Exception! " + System.Environment.NewLine + ex.Message + System.Environment.NewLine);
                 }
             }
+        }
+
+        private static object getCorso(string directory)
+        {
+            return directory.Split("/").GetValue(1);
+        }
+
+        private static object getRoot(string directory)
+        {
+            return directory.Split("/").GetValue(2);
         }
 
         private static object getGit(string directory)
@@ -431,7 +442,7 @@ namespace Bot
                     dictPaths.Remove(e.Message.Document.FileUniqueId, out oldPath);
                     dictPaths.Add(e.Message.Document.FileUniqueId, file);
                 };
-                Serialize(dictPaths, System.IO.File.Open("/home/ubuntu/bot/dictPath.bin", FileMode.Create));
+                //Serialize(dictPaths, System.IO.File.Open("/home/ubuntu/bot/dictPath.bin", FileMode.Create));
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
                 new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId}, // y/n|From.Id|fileUniqueID
                 new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId},
