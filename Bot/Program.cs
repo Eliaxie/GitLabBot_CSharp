@@ -196,12 +196,12 @@ namespace Bot
 
         private static object getCorso(string directory)
         {
-            return directory.Split("/").GetValue(1);
+            return directory.Split("/").GetValue(2);
         }
 
         private static object getRoot(string directory)
         {
-            return directory.Split("/").GetValue(2);
+            return directory.Split("/").GetValue(1);
         }
 
         private static object getGit(string directory)
@@ -416,7 +416,7 @@ namespace Bot
             {
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File sent for approval", ParseMode.Default, false, false, e.Message.MessageId);
                 Message messageFW = await botClient.ForwardMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
-                var file = PrivateKey.root + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + "/" + e.Message.Document.FileName;
+                var file = PrivateKey.root + dict[e.Message.From.Id].getcorso().ToLower() + "/" + dict[e.Message.From.Id].getPercorso() + "/" + e.Message.Document.FileName;
                 if (!dictPaths.TryAdd(e.Message.Document.FileUniqueId, file))
                 {
                     string oldPath;
@@ -442,7 +442,14 @@ namespace Bot
                     dictPaths.Remove(e.Message.Document.FileUniqueId, out oldPath);
                     dictPaths.Add(e.Message.Document.FileUniqueId, file);
                 };
-                //Serialize(dictPaths, System.IO.File.Open("/home/ubuntu/bot/dictPath.bin", FileMode.Create));
+                try
+                {
+                    Serialize(dictPaths, System.IO.File.Open("/home/ubuntu/bot/dictPath.bin", FileMode.Create));
+                }
+                catch
+                {
+                    ;
+                }
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
                 new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId}, // y/n|From.Id|fileUniqueID
                 new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId},
