@@ -7,6 +7,8 @@
         [System.ComponentModel.Description("Info/Tele")]
         Info,
         [System.ComponentModel.Description("Mobility MD")]
-        MobilityMD
+        MobilityMD,
+        [System.ComponentModel.Description("Aerospaziale")]
+        AES
     }
 }
