@@ -4,13 +4,15 @@ using System.Text;
 
 namespace Bot.Enums
 {
-    public enum CorsiEnum //VANNO AGGIUNTI TUTTI A CORSIENUM
+    public enum CorsiEnum //VANNO AGGIUNTI TUTTI A CORSITREI
     {
         [System.ComponentModel.Description("MatNano")]
         MatNano,
         [System.ComponentModel.Description("Info/Tele")]
         Info,
         [System.ComponentModel.Description("Mobility MD")]
-        MobilityMD
+        MobilityMD,
+        [System.ComponentModel.Description("Aerospaziale")]
+        AES
     }
 }
