@@ -417,11 +417,12 @@ namespace Bot
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File sent for approval", ParseMode.Default, false, false, e.Message.MessageId);
                 Message messageFW = await botClient.ForwardMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
                 var file = PrivateKey.root + dict[e.Message.From.Id].getcorso().ToLower() + "/" + dict[e.Message.From.Id].getPercorso() + "/" + e.Message.Document.FileName;
+                string FileUniqueAndGit = e.Message.Document.FileUniqueId + getGit(file);
                 if (!dictPaths.TryAdd(e.Message.Document.FileUniqueId, file))
                 {
                     string oldPath;
                     //Verifica anti-SPAM, da attivare se servisse
-                    /*
+                    
                     if (dictPaths.TryGetValue(e.Message.Document.FileUniqueId, out oldPath))
                     {
                         if (oldPath.Split("/").GetValue(2).Equals(file.Split("/").GetValue(2)))
@@ -438,7 +439,7 @@ namespace Bot
                     {
                         throw new Exception("Fatal error while handling path dictionary");
                     }
-                    */
+                   
                     dictPaths.Remove(e.Message.Document.FileUniqueId, out oldPath);
                     dictPaths.Add(e.Message.Document.FileUniqueId, file);
                 };
@@ -448,7 +449,7 @@ namespace Bot
                 }
                 catch
                 {
-                    ;
+                    await botClient.SendTextMessageAsync(-1001399914655, "Errore nel salvataggio su file del dizionario! " + e.Message.Text + System.Environment.NewLine);
                 }
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
                 new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId}, // y/n|From.Id|fileUniqueID
