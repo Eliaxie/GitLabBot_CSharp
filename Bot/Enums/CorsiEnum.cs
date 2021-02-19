@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Bot.Enums
 {
-    public enum CorsiEnum //VANNO AGGIUNTI TUTTI A CORSITREI
+    public enum CorsiEnum //VANNO AGGIUNTI TUTTI A CORSIscuola
     {
         [System.ComponentModel.Description("MatNano")]
         MatNano,
