@@ -414,33 +414,21 @@ namespace Bot
             }
             else
             {
-                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File sent for approval", ParseMode.Default, false, false, e.Message.MessageId);
-                Message messageFW = await botClient.ForwardMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
                 var file = PrivateKey.root + dict[e.Message.From.Id].getcorso().ToLower() + "/" + dict[e.Message.From.Id].getPercorso() + "/" + e.Message.Document.FileName;
-                if (!dictPaths.TryAdd(e.Message.Document.FileUniqueId, file))
+                string FileUniqueAndGit = e.Message.Document.FileUniqueId + getGit(file);
+                Boolean fileAlreadyPresent = false;
+                string oldPath = null;
+                if (!dictPaths.TryAdd(FileUniqueAndGit, file))
                 {
-                    string oldPath;
                     //Verifica anti-SPAM, da attivare se servisse
-                    /*
-                    if (dictPaths.TryGetValue(e.Message.Document.FileUniqueId, out oldPath))
+                    if (dictPaths.TryGetValue(FileUniqueAndGit, out oldPath))
                     {
-                        if (oldPath.Split("/").GetValue(2).Equals(file.Split("/").GetValue(2)))
-                        {
-                            await botClient.SendTextMessageAsync(e.Message.Chat.Id,
-                                "File already present in " + oldPath + "if not, this file has been denied already.", ParseMode.Default, false, false,
-                                e.Message.MessageId);
-                            throw new Exception("File already present");
-                        }
-                        dictPaths.Remove(e.Message.Document.FileUniqueId, out oldPath);
-                        dictPaths.Add(e.Message.Document.FileUniqueId, file);
+                        fileAlreadyPresent = true;
                     }
                     else
                     {
                         throw new Exception("Fatal error while handling path dictionary");
                     }
-                    */
-                    dictPaths.Remove(e.Message.Document.FileUniqueId, out oldPath);
-                    dictPaths.Add(e.Message.Document.FileUniqueId, file);
                 };
                 try
                 {
@@ -448,15 +436,30 @@ namespace Bot
                 }
                 catch
                 {
-                    ;
+                    await botClient.SendTextMessageAsync(-1001399914655, "Errore nel salvataggio su file del dizionario! " + e.Message.Text + System.Environment.NewLine);
                 }
                 List<InlineKeyboardButton> inlineKeyboardButton = new List<InlineKeyboardButton>() {
-                new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId}, // y/n|From.Id|fileUniqueID
-                new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id + "|" + e.Message.Document.FileUniqueId},
+                new InlineKeyboardButton() {Text = "Yes", CallbackData = "y|" + e.Message.From.Id + "|" + FileUniqueAndGit}, // y/n|From.Id|fileUniqueID
+                new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id + "|" + FileUniqueAndGit},
                 };
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
-                Message queryAW = await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
-                var fileName = PrivateKey.root + @"/doc/" + e.Message.Document.FileName;
+                if (!fileAlreadyPresent && oldPath == null)
+                {
+                    await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File sent for approval", ParseMode.Default, false, false, e.Message.MessageId);
+                    Message messageFW = await botClient.ForwardMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
+                    Message queryAW = await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
+
+                }
+                else if(fileAlreadyPresent && oldPath != null)
+                {
+                    await botClient.SendTextMessageAsync(e.Message.Chat.Id, "The file is already present in " + oldPath + " or it has been already refused. If you think this is a mistake, contact your head admin from this page https://polinetwork.github.io/it/about_us/index.html", ParseMode.Default, true, false, e.Message.MessageId);
+                }
+                else
+                {
+                    throw new Exception("Fatal error while handling path dictionary -> fileAlreadyPresent && oldPath != null");
+
+                }
+                
                 /*   string q = "INSERT INTO Main.FILE (Path, Id_owner, Data, Approved, Id_cs, Desc, Id_message) VALUES (@p, @io, @d, @a, @ic, @d, @im)";
                 Dictionary<string, object> keyValuePairs = new Dictionary<string, object>() {
                     {"@p", fileName },
