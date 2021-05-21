@@ -160,7 +160,7 @@ namespace Bot
                         powershell.Commands.Clear();
                         Console.WriteLine(whatChanged(e));
                         botClient.SendTextMessageAsync(-1001399914655, "Log: WhatChanged: " + whatChanged(e) + System.Environment.NewLine);
-
+                        botClient.SendTextMessageAsync(-1001399914655, "Log: Commit: " + @"git commit -m 'git commit by bot updated file: " + whatChanged(e) + @"' --author=""polinetwork2@gmail.com""");
                         string commit = @"git commit -m 'git commit by bot updated file: " + whatChanged(e) + @"' --author=""polinetwork2@gmail.com""";
                         powershell.AddScript(commit);
                         results = powershell.Invoke().ToList();
