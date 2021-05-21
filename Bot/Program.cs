@@ -140,6 +140,7 @@ namespace Bot
                         // this changes from the user folder that PowerShell starts up with to your git repository
                         string dirCD = "/" + getRoot(directory) + "/" + getCorso(directory) + "/" + getGit(directory) + "/";
                         powershell.AddScript("cd " + dirCD);
+                        botClient.SendTextMessageAsync(-1001399914655, "Log: CD result: " + dirCD + System.Environment.NewLine);
                         powershell.AddScript(@"git pull");
                         List<PSObject> results = powershell.Invoke().ToList();
                         for (int i = 0; i < results.Count(); i++)
