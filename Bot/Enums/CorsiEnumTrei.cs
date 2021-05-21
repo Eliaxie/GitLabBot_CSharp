@@ -9,6 +9,8 @@
         [System.ComponentModel.Description("Mobility MD")]
         MobilityMD,
         [System.ComponentModel.Description("Aerospaziale")]
-        AES
+        AES,
+        [System.ComponentModel.Description("Aerospaziale")]
+        Electronics
     }
 }

@@ -10456,19 +10456,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\elia_\\.nuget\\packages\\": {}
+    "C:\\Users\\eliam\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj",
+      "projectUniqueName": "C:\\repos\\GitLabBot_CSharp\\Bot\\Bot.csproj",
       "projectName": "Bot",
-      "projectPath": "C:\\Repos\\GitLabBot_CSharp\\Bot\\Bot.csproj",
-      "packagesPath": "C:\\Users\\elia_\\.nuget\\packages\\",
-      "outputPath": "C:\\Repos\\GitLabBot_CSharp\\Bot\\obj\\",
+      "projectPath": "C:\\repos\\GitLabBot_CSharp\\Bot\\Bot.csproj",
+      "packagesPath": "C:\\Users\\eliam\\.nuget\\packages\\",
+      "outputPath": "C:\\repos\\GitLabBot_CSharp\\Bot\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\elia_\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\eliam\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -10534,7 +10534,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.200-preview.20601.7\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.202\\RuntimeIdentifierGraph.json"
       }
     }
   }
