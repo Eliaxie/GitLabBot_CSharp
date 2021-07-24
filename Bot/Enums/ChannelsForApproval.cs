@@ -16,6 +16,8 @@ namespace Bot.Enums
         static ChatId infoChannel = -1001422638605;
         static ChatId mobilityMDChannel = -1001401676534;
         static ChatId electronicsChannel = -1001165704108;
+        static ChatId automationChannel = -1001541302296;
+        static ChatId chimicaChannel = -1001541302296;
         static ChatId debug = -1001403617749;
 
         internal static ChatId getChannel(string v)
@@ -36,6 +38,12 @@ namespace Bot.Enums
                     break;
                 case "electronics":
                     return ChannelsForApproval.electronicsChannel;
+                    break;
+                case "automazione":
+                    return ChannelsForApproval.automationChannel;
+                    break;
+                case "chimica":
+                    return ChannelsForApproval.chimicaChannel;
                     break;
                 default:
                     throw new NotImplementedException();

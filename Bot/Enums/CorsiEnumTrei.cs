@@ -10,7 +10,11 @@
         MobilityMD,
         [System.ComponentModel.Description("Aerospaziale")]
         AES,
-        [System.ComponentModel.Description("Aerospaziale")]
-        Electronics
+        [System.ComponentModel.Description("Electronics")]
+        Electronics,
+        [System.ComponentModel.Description("Automazione")]
+        Automazione,
+        [System.ComponentModel.Description("Chimica")]
+        Chimica
     }
 }
