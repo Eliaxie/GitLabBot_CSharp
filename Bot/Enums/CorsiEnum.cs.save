@@ -15,7 +15,9 @@ namespace Bot.Enums
         [System.ComponentModel.Description("Aerospaziale")]
         AES,
         [System.ComponentModel.Description("Aerospaziale")]
-        Electronics,
-        Automazione
+        Electronics
+
+,
+X
     }
 }

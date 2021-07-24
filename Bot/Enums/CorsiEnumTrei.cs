@@ -11,6 +11,7 @@
         [System.ComponentModel.Description("Aerospaziale")]
         AES,
         [System.ComponentModel.Description("Aerospaziale")]
-        Electronics
+        Electronics,
+        Automazione
     }
 }
