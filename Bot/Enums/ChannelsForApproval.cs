@@ -16,7 +16,7 @@ namespace Bot.Enums
         static ChatId infoChannel = -1001422638605;
         static ChatId mobilityMDChannel = -1001401676534;
         static ChatId electronicsChannel = -1001165704108;
-        static ChatId automationChannel = -1001165704108;
+        static ChatId automationChannel = -1001541302296;
         static ChatId chimicaChannel = -1001510001243;
         static ChatId debug = -1001403617749;
 
