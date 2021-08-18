@@ -444,17 +444,19 @@ namespace Bot
                 new InlineKeyboardButton() {Text = "No", CallbackData = "n|" + + e.Message.From.Id + "|" + FileUniqueAndGit},
                 };
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineKeyboardButton);
-                if (!fileAlreadyPresent && oldPath == null)
+                if ((!fileAlreadyPresent && oldPath == null) || (fileAlreadyPresent && oldPath != null))
                 {
                     await botClient.SendTextMessageAsync(e.Message.Chat.Id, "File sent for approval", ParseMode.Default, false, false, e.Message.MessageId);
                     Message messageFW = await botClient.ForwardMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), e.Message.Chat.Id, e.Message.MessageId); //inoltra il file sul gruppo degli admin
                     Message queryAW = await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[e.Message.From.Id].getcorso()), "Approvi l'inserimento del documento in " + dict[e.Message.From.Id].getcorso() + "/" + dict[e.Message.From.Id].getPercorso() + " ?", ParseMode.Default, false, false, messageFW.MessageId, inlineKeyboardMarkup, default(CancellationToken)); //aggiunge sotto la InlineKeyboard per la selezione del what to do
 
                 }
+                /*
                 else if(fileAlreadyPresent && oldPath != null)
                 {
                     await botClient.SendTextMessageAsync(e.Message.Chat.Id, "The file is already present in " + oldPath + " or it has been already refused. If you think this is a mistake, contact your head admin from this page https://polinetwork.github.io/it/about_us/index.html", ParseMode.Default, true, false, e.Message.MessageId);
                 }
+                */
                 else
                 {
                     throw new Exception("Fatal error while handling path dictionary -> fileAlreadyPresent && oldPath != null");
