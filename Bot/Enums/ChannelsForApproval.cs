@@ -46,7 +46,7 @@ namespace Bot.Enums
                     return ChannelsForApproval.chimicaChannel;
                     break;
                 case "elettrica":
-                    return ChannelsForApproval.elettricaChannel;
+                    return ChannelsForApproval.electronicsChannel;
                     break;
                 default:
                     throw new NotImplementedException();
