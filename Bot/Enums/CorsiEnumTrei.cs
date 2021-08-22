@@ -15,6 +15,8 @@
         [System.ComponentModel.Description("Automazione")]
         Automazione,
         [System.ComponentModel.Description("Chimica")]
-        Chimica
+        Chimica,
+        [System.ComponentModel.Description("Chimica")]
+        Elettrica
     }
 }

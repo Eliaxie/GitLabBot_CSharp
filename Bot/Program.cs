@@ -272,8 +272,13 @@ namespace Bot
             {
                 case "y":
                     {
+                    string nameApprover = callbackQuery.From.FirstName;
+                    if( nameApprover != null && nameApprover.Length > 1)
+                        {
+                            nameApprover = nameApprover[0].ToString();
+                        }
                     await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id, text: $"Modification Accepted"); //Mostra un messaggio all'utente
-                    var message = botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b> by " + callbackQuery.From.FirstName, ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
+                    var message = botClient.EditMessageTextAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "<b>MERGED</b> by " + nameApprover, ParseMode.Html); //modifica il messaggio in modo che non sia più riclickabile
                     if (callbackQuery.Message.ReplyToMessage.Document.FileSize > 20000000)
                         {
                             await botClient.SendTextMessageAsync(ChannelsForApproval.getChannel(dict[FromId].getcorso()), "Can't upload " + callbackQuery.Message.ReplyToMessage.Document.FileName + ". file size exceeds maximum allowed size. You can upload it manually from GitLab.", ParseMode.Default, false, false); //aggiunge sotto la InlineKeyboard per la selezione del what to do

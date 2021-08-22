@@ -20,5 +20,7 @@ namespace Bot.Enums
         Automazione,
         [System.ComponentModel.Description("Chimica")]
         Chimica,
+        [System.ComponentModel.Description("Chimica")]
+        Elettrica,
     }
 }
