@@ -2,6 +2,7 @@ Bot/obj/
 .vs/
 Bot/bin/Debug/
 Bot/PrivateKey.cs
+Bot/bin/Release/net5.0/runtimes/
 
 .idea/
 .vs/
